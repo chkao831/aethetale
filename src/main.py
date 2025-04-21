@@ -143,56 +143,60 @@ def main():
     try:
         # Initialize flow components
         print("\nInitializing flow components...")
-        config_loader = ConfigLoader(story_path)
+        config_loader = ConfigLoader(story_path, openai_client=openai_client)
         prompt_builder = PromptBuilder(story_path)
         retriever = ContextRetriever(story_path)
         generator = StoryGenerator(story_path, openai_client)
         stitcher = ChapterStitcher(story_path)
         print("✅ Flow components initialized")
 
-        # Load configuration
+        # Load configuration and beats
         config = config_loader.load_config()
-        print("✅ Configuration loaded")
+        beat_descriptions = config_loader.load_beats()
+        print("✅ Configuration and beats loaded")
 
-        # Example: Generate a character introduction
-        print("\nGenerating character introduction...")
-        
-        # Get character profile and context
-        character_name = "Lena"  # Using the main character from the story
-        character_profile = retriever.get_character_profile(character_name)
-        if character_profile:
-            print(f"\nCharacter Profile for {character_name}:")
-            print(f"Role: {character_profile.role}")
-            print(f"Traits: {', '.join(character_profile.personality_traits)}")
-            print(f"Goals: {', '.join(character_profile.goals)}")
+        # Process each beat
+        scenes = []
+        for i, beat_description in enumerate(beat_descriptions, 1):
+            print(f"\nProcessing beat: {beat_description}")
             
-        character_context = retriever.get_character_context(character_name)
-        print(f"✅ Retrieved context for {character_name}")
+            # Analyze the beat using LLM
+            beat = config_loader.analyze_beat(beat_description)
+            beat['position'] = i
+            print(f"✅ Beat analyzed: {beat}")
+            
+            # Get character profile and context
+            character_name = beat['character']
+            character_profile = retriever.get_character_profile(character_name)
+            if character_profile:
+                print(f"\nCharacter Profile for {character_name}:")
+                print(f"Role: {character_profile.role}")
+                print(f"Traits: {', '.join(character_profile.personality_traits)}")
+                print(f"Goals: {', '.join(character_profile.goals)}")
+                
+            character_context = retriever.get_character_context(character_name)
+            print(f"✅ Retrieved context for {character_name}")
 
-        # Build prompt for the introduction
-        prompt = prompt_builder.build_beat_prompt(
-            beat=f"{character_name}'s introduction",
-            context=character_context,
-            style={
-                "tone": "neutral",
-                "pov": "third_person",
-                "tense": "past"
-            }
-        )
-        print("✅ Prompt built")
+            # Build prompt for the beat
+            prompt = prompt_builder.build_beat_prompt(
+                beat=beat['name'],
+                context=character_context,
+                style=beat['style']
+            )
+            print("✅ Prompt built")
 
-        # Generate the introduction
-        generated_text = generator.generate_text(prompt)
-        print("✅ Text generated")
+            # Generate the text
+            generated_text = generator.generate_text(prompt)
+            print("✅ Text generated")
 
-        # Stitch the scene into a chapter
-        scenes = [
-            {
+            # Add to scenes
+            scenes.append({
                 "text": generated_text,
-                "position": 0,
-                "beat": f"{character_name}'s introduction"
-            }
-        ]
+                "position": beat['position'],
+                "beat": beat['name']
+            })
+
+        # Stitch all scenes into a chapter
         chapter_text = stitcher.stitch_scenes(scenes)
         print("✅ Scenes stitched into chapter")
 
@@ -202,7 +206,7 @@ def main():
             chapter_number=1,
             metadata={
                 "chapter_number": 1,
-                "beats": [f"{character_name}'s introduction"],
+                "beats": beat_descriptions,
                 "scenes": scenes
             }
         )

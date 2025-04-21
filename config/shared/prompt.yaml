@@ -1,0 +1,90 @@
+story_analysis: |
+  Analyze the following story text and extract the following elements in JSON format:
+  
+  {{
+    "style": {{
+      "tone": "string describing the overall tone",
+      "pacing": "string describing the story's pacing",
+      "narrative_style": "string describing the narrative style"
+    }},
+    "characters": {{
+      "character_name": {{
+        "role": "string describing their role",
+        "traits": ["list of character traits"],
+        "arc": "string describing their character arc"
+      }}
+    }},
+    "world": {{
+      "setting": "string describing the main setting",
+      "rules": ["list of unique world rules or phenomena"],
+      "atmosphere": "string describing the world's atmosphere"
+    }},
+    "themes": ["list of main themes in the story"]
+  }}
+  
+  Story text:
+  {text}
+
+beat_expansion: |
+  Write a continuous narrative that seamlessly continues the story, incorporating the following story beats:
+  {beats}
+  
+  Previous story context:
+  {context}
+  
+  Style guidelines:
+  - Tone: {tone}
+  - Point of View: {pov}
+  - Tense: {tense}
+  - Language: {language}
+  
+  Write a vivid, engaging narrative that:
+  1. Seamlessly continues from the previous story
+  2. Naturally incorporates all the story beats in a flowing manner
+  3. Maintains consistency with the provided context and style guidelines
+  4. Uses the specified language throughout
+  5. Focuses on showing rather than telling
+  6. Incorporates sensory details to bring the scene to life
+  
+  Do not treat the beats as separate sections or bullet points. Instead, weave them together into a single, cohesive narrative that feels like a natural continuation of the story.
+
+character_extraction: |
+  Analyze the following story text and extract detailed character profiles.
+  For each character mentioned, create a rich profile with the following information:
+  
+  - name: Canonical name
+  - aliases: List of other names or titles
+  - role: Narrative or mythic role
+  - occupation: What they do
+  - personality_traits: Core emotional/behavioral traits
+  - goals: Personal motivations
+  - fears: Deepest anxieties
+  - lovers: Romantic links
+  - friends: Ally links
+  - enemies: Conflicts
+  - family: List of family relationships
+  - key_events: Important scenes they appear in
+  
+  Format the output as a JSON object where each key is a character name
+  and the value is their profile information. Make sure the output is valid JSON.
+  
+  Example format:
+  {{
+      "CharacterName": {{
+          "name": "CharacterName",
+          "aliases": ["Alias1", "Alias2"],
+          "role": "Protagonist",
+          "occupation": "Occupation",
+          "personality_traits": ["Trait1", "Trait2"],
+          "goals": ["Goal1", "Goal2"],
+          "fears": ["Fear1", "Fear2"],
+          "lovers": ["Lover1"],
+          "friends": ["Friend1", "Friend2"],
+          "enemies": ["Enemy1"],
+          "family": ["FamilyMember1"],
+          "key_events": ["Event1", "Event2"]
+      }}
+  }}
+  
+  Story text:
+  {text} 

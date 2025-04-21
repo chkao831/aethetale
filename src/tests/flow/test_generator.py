@@ -10,16 +10,19 @@ def temp_story_dir(tmp_path):
     story_dir = tmp_path / "test_story"
     story_dir.mkdir()
     
-    # Create test config
+    # Create shared config directory and config
+    shared_config_dir = tmp_path / "config" / "shared"
+    shared_config_dir.mkdir(parents=True)
+    
     config = {
         "model": {
-            "name": "test-model",
+            "name": "gpt-4-turbo-preview",
             "temperature": 0.7,
-            "max_tokens": 100
+            "max_tokens": 2000
         }
     }
     
-    with open(story_dir / "config.json", "w") as f:
+    with open(shared_config_dir / "config.json", "w") as f:
         json.dump(config, f)
     
     return story_dir
@@ -43,20 +46,22 @@ def test_generator_initialization(mock_openai_class, temp_story_dir, mock_openai
     ]
     
     # Test with provided client
-    generator = StoryGenerator(temp_story_dir, mock_openai_client)
+    generator = StoryGenerator(temp_story_dir, mock_openai_client, language="en")
     assert generator.story_path == temp_story_dir
     assert generator.client == mock_openai_client
+    assert generator.language == "en"
     
     # Test with default client
     with patch.dict('os.environ', {'OPENAI_API_KEY': 'test-key'}):
-        generator = StoryGenerator(temp_story_dir)
+        generator = StoryGenerator(temp_story_dir, language="zh")
         assert generator.story_path == temp_story_dir
         assert isinstance(generator.client, Mock)
+        assert generator.language == "zh"
         mock_openai_class.assert_called_once()
 
 def test_generate_text(temp_story_dir, mock_openai_client):
     """Test text generation."""
-    generator = StoryGenerator(temp_story_dir, mock_openai_client)
+    generator = StoryGenerator(temp_story_dir, mock_openai_client, language="en")
     prompt = "Test prompt"
     
     text = generator.generate_text(prompt)
@@ -65,13 +70,13 @@ def test_generate_text(temp_story_dir, mock_openai_client):
     # Verify API call
     mock_openai_client.chat.completions.create.assert_called_once()
     call_args = mock_openai_client.chat.completions.create.call_args[1]
-    assert call_args["model"] == "test-model"
+    assert call_args["model"] == "gpt-4-turbo-preview"
     assert call_args["temperature"] == 0.7
-    assert call_args["max_tokens"] == 100
+    assert call_args["max_tokens"] == 2000
 
 def test_expand_beat(temp_story_dir, mock_openai_client):
     """Test beat expansion."""
-    generator = StoryGenerator(temp_story_dir, mock_openai_client)
+    generator = StoryGenerator(temp_story_dir, mock_openai_client, language="en")
     beat = "Test beat"
     context = "Test context"
     style = {
@@ -88,10 +93,12 @@ def test_expand_beat(temp_story_dir, mock_openai_client):
     call_args = mock_openai_client.chat.completions.create.call_args[1]
     assert beat in call_args["messages"][1]["content"]
     assert context in call_args["messages"][1]["content"]
+    assert "language" in call_args["messages"][1]["content"]
+    assert "en" in call_args["messages"][1]["content"]
 
 def test_analyze_style(temp_story_dir, mock_openai_client):
     """Test style analysis."""
-    generator = StoryGenerator(temp_story_dir, mock_openai_client)
+    generator = StoryGenerator(temp_story_dir, mock_openai_client, language="en")
     text = "Test text for style analysis"
     
     # Test successful JSON parsing

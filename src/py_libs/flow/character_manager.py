@@ -1,6 +1,7 @@
 from typing import List, Dict, Any
 from pathlib import Path
 import json
+import yaml
 from datetime import datetime
 from openai import OpenAI
 from src.py_libs.models.character_profile import CharacterProfile, FamilyRelation
@@ -19,6 +20,11 @@ class CharacterManager:
         self.client = openai_client if openai_client is not None else OpenAI()
         self.profiles_path = story_path / "character_profiles.json"
         
+        # Load prompts from shared config
+        shared_config_path = Path("config/shared")
+        with open(shared_config_path / "prompt.yaml", 'r', encoding='utf-8') as f:
+            self.prompts = yaml.safe_load(f)
+        
     def _serialize_datetime(self, dt: datetime) -> str:
         """Convert datetime to ISO format string."""
         return dt.isoformat()
@@ -31,9 +37,63 @@ class CharacterManager:
         data['updated_at'] = self._serialize_datetime(profile.updated_at)
         return data
         
+    def _convert_family_relation(self, relation: str | dict) -> Dict[str, str]:
+        """
+        Convert a family relation to the proper format.
+        
+        Args:
+            relation: String or dict representing a family relation
+            
+        Returns:
+            Dictionary with name and relation_type fields
+        """
+        if isinstance(relation, dict):
+            # If it's already a dict, ensure it has the required fields
+            if 'name' not in relation:
+                return {
+                    'name': 'Unknown',
+                    'relation_type': 'Unknown'
+                }
+            # Convert relation to relation_type if needed
+            return {
+                'name': relation['name'],
+                'relation_type': relation.get('relation_type', relation.get('relation', 'Unknown'))
+            }
+        else:
+            # If it's a string, use it as the name and set relation_type as Unknown
+            return {
+                'name': str(relation),
+                'relation_type': 'Unknown'
+            }
+            
+    def _convert_family_list(self, family_data: list | dict) -> list:
+        """
+        Convert family data to a list of properly formatted family relations.
+        
+        Args:
+            family_data: List or dict of family relations
+            
+        Returns:
+            List of properly formatted family relations
+        """
+        if isinstance(family_data, dict):
+            # Convert dict to list of relations
+            return [
+                {
+                    'name': name,
+                    'relation_type': data.get('relation_type', data.get('relation', 'Unknown'))
+                }
+                for name, data in family_data.items()
+            ]
+        elif isinstance(family_data, list):
+            # Convert each item in the list
+            return [self._convert_family_relation(item) for item in family_data]
+        else:
+            return []
+            
     def extract_character_profiles(self, text: str) -> Dict[str, CharacterProfile]:
         """
-        Extract character profiles from story text using LLM.
+        Extract character profiles from the text using LLM.
         
         Args:
             text: The story text to analyze
@@ -41,95 +101,119 @@ class CharacterManager:
         Returns:
             Dictionary mapping character names to their profiles
         """
-        prompt = f"""
-        Analyze the following story text and extract detailed character profiles.
-        For each character mentioned, create a rich profile with the following information:
+        # Get the character analysis prompt from loaded prompts
+        character_prompt = self.prompts.get('character_extraction', """
+        Analyze the following text and extract character profiles. For each character, provide:
+        - Name
+        - Role in the story
+        - Occupation
+        - Personality traits
+        - Goals and motivations
+        - Fears and weaknesses
+        - Relationships (family, friends, enemies, lovers)
+        - Key events they're involved in
         
-        - name: Canonical name
-        - aliases: List of other names or titles
-        - role: Narrative or mythic role
-        - occupation: What they do
-        - personality_traits: Core emotional/behavioral traits
-        - goals: Personal motivations
-        - fears: Deepest anxieties
-        - lovers: Romantic links
-        - friends: Ally links
-        - enemies: Conflicts
-        - family: List of family relationships, each with relation_type and name
-        - key_events: Important scenes they appear in
+        Text: {text}
         
-        Format the output as a JSON object where each key is a character name
-        and the value is their profile information. Make sure the output is valid JSON.
-        
-        Example format:
+        Provide the analysis in JSON format with the following structure for each character:
         {{
-            "CharacterName": {{
-                "name": "CharacterName",
-                "aliases": ["Alias1", "Alias2"],
-                "role": "Protagonist",
-                "occupation": "Occupation",
-                "personality_traits": ["Trait1", "Trait2"],
-                "goals": ["Goal1", "Goal2"],
-                "fears": ["Fear1", "Fear2"],
-                "lovers": ["Lover1"],
-                "friends": ["Friend1", "Friend2"],
-                "enemies": ["Enemy1"],
-                "family": [
-                    {{
-                        "relation_type": "parent",
-                        "name": "ParentName"
-                    }}
-                ],
-                "key_events": ["Event1", "Event2"]
+            "character_name": {{
+                "name": "string",
+                "aliases": ["string"],
+                "role": "string",
+                "occupation": "string",
+                "personality_traits": ["string"],
+                "goals": ["string"],
+                "fears": ["string"],
+                "lovers": ["string"],
+                "friends": ["string"],
+                "enemies": ["string"],
+                "family": [{{ "name": "string", "relation_type": "string" }}],
+                "key_events": ["string"]
             }}
         }}
         
-        Story text:
-        {text}
-        """
+        Note: For family relationships, each entry must include both name and relation_type. Example:
+        "family": [
+            {{"name": "John", "relation_type": "Father"}},
+            {{"name": "Mary", "relation_type": "Sister"}}
+        ]
+        """)
         
+        # Format the prompt
+        formatted_prompt = character_prompt.format(text=text)
+        
+        # Call the LLM
+        response = self.client.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {"role": "system", "content": "You are a character analysis assistant. Always respond with valid JSON. For family relationships, always include both name and relation_type fields."},
+                {"role": "user", "content": formatted_prompt}
+            ],
+            temperature=0.3,
+            response_format={"type": "json_object"}
+        )
+        
+        # Get the response content
+        content = response.choices[0].message.content
+        print(f"Raw LLM response:\n{content}")
+        
+        # Try to parse the JSON response
         try:
-            response = self.client.chat.completions.create(
-                model="gpt-3.5-turbo",
-                messages=[
-                    {"role": "system", "content": "You are a literary analyst specializing in character development. Always respond with valid JSON."},
-                    {"role": "user", "content": prompt}
-                ],
-                temperature=0.3
-            )
-            
-            # Get the response content
-            content = response.choices[0].message.content.strip()
-            
-            # Try to parse the JSON
+            # First try direct parsing
+            profiles_data = json.loads(content)
+        except json.JSONDecodeError as e:
+            # If direct parsing fails, try to extract JSON from the response
             try:
-                raw_data = json.loads(content)
-            except json.JSONDecodeError as e:
-                print(f"Raw LLM response: {content}")
-                raise Exception(f"Failed to parse JSON response: {str(e)}")
+                # Look for JSON content between ```json and ``` markers
+                import re
+                json_match = re.search(r'```json\s*(.*?)\s*```', content, re.DOTALL)
+                if json_match:
+                    profiles_data = json.loads(json_match.group(1))
+                else:
+                    # If no markers found, try to find the first valid JSON object
+                    json_match = re.search(r'\{.*\}', content, re.DOTALL)
+                    if json_match:
+                        profiles_data = json.loads(json_match.group(0))
+                    else:
+                        raise ValueError("No valid JSON found in response")
+            except (json.JSONDecodeError, ValueError) as e:
+                raise ValueError(f"Failed to parse character profiles from LLM response: {str(e)}")
                 
-            # Convert to CharacterProfile objects with validation
-            profiles = {}
-            for name, data in raw_data.items():
-                try:
-                    # Ensure family relations are properly structured
-                    if "family" in data:
-                        data["family"] = [
-                            rel if isinstance(rel, dict) else {"relation_type": "unknown", "name": rel}
-                            for rel in data["family"]
-                        ]
+        # Process the profiles
+        profiles = {}
+        for name, data in profiles_data.items():
+            # Convert family data to proper format
+            if 'family' in data:
+                data['family'] = self._convert_family_list(data['family'])
+                
+            # Convert other list fields to ensure they're strings
+            for field in ['aliases', 'personality_traits', 'goals', 'fears', 'lovers', 'friends', 'enemies', 'key_events']:
+                if field in data and isinstance(data[field], list):
+                    data[field] = [str(item) for item in data[field]]
                     
-                    # Create and validate the profile
-                    profile = CharacterProfile(**data)
-                    profiles[name] = profile
-                except ValidationError as e:
-                    print(f"Validation error for character {name}: {str(e)}")
-                    continue
-                    
-            return profiles
-            
-        except Exception as e:
-            raise Exception(f"Error extracting character profiles: {str(e)}")
+            # Create the profile
+            try:
+                profiles[name] = CharacterProfile(
+                    name=name,
+                    aliases=data.get('aliases', []),
+                    role=data.get('role', ''),
+                    occupation=data.get('occupation', ''),
+                    personality_traits=data.get('personality_traits', []),
+                    goals=data.get('goals', []),
+                    fears=data.get('fears', []),
+                    lovers=data.get('lovers', []),
+                    friends=data.get('friends', []),
+                    enemies=data.get('enemies', []),
+                    family=data.get('family', []),
+                    key_events=data.get('key_events', [])
+                )
+            except Exception as e:
+                print(f"Error creating profile for {name}: {str(e)}")
+                print(f"Profile data: {data}")
+                raise
+                
+        return profiles
             
     def update_character_profiles(self, text: str):
         """
@@ -145,7 +229,7 @@ class CharacterManager:
         existing_profiles = {}
         if self.profiles_path.exists():
             try:
-                with open(self.profiles_path, 'r') as f:
+                with open(self.profiles_path, 'r', encoding='utf-8') as f:
                     existing_data = json.load(f)
                     for name, data in existing_data.items():
                         try:
@@ -198,8 +282,8 @@ class CharacterManager:
                 name: self._serialize_profile(profile)
                 for name, profile in existing_profiles.items()
             }
-            with open(self.profiles_path, 'w') as f:
-                json.dump(profiles_data, f, indent=2)
+            with open(self.profiles_path, 'w', encoding='utf-8') as f:
+                json.dump(profiles_data, f, indent=2, ensure_ascii=False)
         except Exception as e:
             raise Exception(f"Error saving profiles: {str(e)}")
             

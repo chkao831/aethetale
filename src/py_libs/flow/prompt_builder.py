@@ -3,50 +3,56 @@ from pathlib import Path
 import yaml
 
 class PromptBuilder:
-    def __init__(self, story_path: Path):
+    def __init__(self, story_path: Path, language: str = "en"):
         """
-        Initialize the prompt builder for a story.
+        Initialize the prompt builder.
         
         Args:
             story_path: Path to the story directory
+            language: Language to use for prompts (default: "en")
         """
         self.story_path = story_path
-        self.prompt_path = story_path / "prompt.yaml"
+        self.shared_config_path = Path("config/shared")
+        self.prompt_path = self.shared_config_path / "prompt.yaml"
+        self.language = language
         self._load_prompts()
         
     def _load_prompts(self):
-        """Load prompt templates from YAML file."""
-        with open(self.prompt_path, 'r') as f:
+        """Load prompt templates from the shared configuration."""
+        with open(self.prompt_path, 'r', encoding='utf-8') as f:
             self.prompts = yaml.safe_load(f)
+            # Ensure all required prompts are present
+            required_prompts = {
+                "beat_expansion": """
+                Write a continuous narrative in {language} that seamlessly continues the story, incorporating the following story beats:
+                {beats}
+                
+                Previous story context:
+                {context}
+                
+                Style guidelines:
+                - Tone: {tone}
+                - Point of View: {pov}
+                - Tense: {tense}
+                """,
+                "style_guidance": "Analyze style: {text}",
+                "character_extraction": "Extract character details: {text}",
+                "story_analysis": "Analyze story: {text}"
+            }
+            for prompt_name, default_prompt in required_prompts.items():
+                if prompt_name not in self.prompts:
+                    self.prompts[prompt_name] = default_prompt
             
-    def build_beat_prompt(self, beat: str, context: List[Dict[str, Any]], style: Dict[str, str]) -> str:
-        """
-        Build a prompt for expanding a narrative beat.
-        
-        Args:
-            beat: The narrative beat to expand
-            context: List of context chunks
-            style: Style configuration
-            
-        Returns:
-            Formatted prompt string
-        """
-        # Format context
-        context_text = "\n\n".join([
-            f"Context {i+1} (relevance: {chunk['similarity_score']:.2f}):\n{chunk['text']}"
-            for i, chunk in enumerate(context)
-        ])
-        
-        # Build prompt
-        prompt = self.prompts["beat_expansion"].format(
-            beat=beat,
-            context=context_text,
-            tone=style["tone"],
-            pov=style["pov"],
-            tense=style["tense"]
+    def build_beat_prompt(self, beats: str, context: str, style: dict) -> str:
+        """Build a prompt for generating continuous narrative from story beats."""
+        return self.prompts['beat_expansion'].format(
+            beats=beats,
+            context=context,
+            tone=style.get('tone', 'neutral'),
+            pov=style.get('pov', 'third person'),
+            tense=style.get('tense', 'past'),
+            language=self.language
         )
-        
-        return prompt
         
     def build_style_prompt(self, text: str) -> str:
         """
@@ -76,17 +82,9 @@ class PromptBuilder:
             for i, chunk in enumerate(context)
         ])
         
-        return f"""
-        Develop the character {character} based on the following context:
-        
-        {context_text}
-        
-        Consider:
-        - Personality traits and motivations
-        - Relationships with other characters
-        - Character arc and development
-        - Unique voice and mannerisms
-        """
+        return self.prompts["character_extraction"].format(
+            text=context_text
+        )
         
     def build_relationship_prompt(self, character1: str, character2: str, context: List[Dict[str, Any]]) -> str:
         """

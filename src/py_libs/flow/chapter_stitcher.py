@@ -71,13 +71,13 @@ class ChapterStitcher:
         
         # Save chapter text
         chapter_file = chapters_dir / f"chapter_{chapter_number}.txt"
-        with open(chapter_file, 'w') as f:
+        with open(chapter_file, 'w', encoding='utf-8') as f:
             f.write(chapter_text)
             
         # Save metadata
         metadata_file = chapters_dir / f"chapter_{chapter_number}_metadata.json"
-        with open(metadata_file, 'w') as f:
-            json.dump(metadata, f, indent=2)
+        with open(metadata_file, 'w', encoding='utf-8') as f:
+            json.dump(metadata, f, indent=2, ensure_ascii=False)
             
     def load_chapter(self, chapter_number: int) -> Dict[str, Any]:
         """
@@ -93,12 +93,12 @@ class ChapterStitcher:
         
         # Load chapter text
         chapter_file = chapters_dir / f"chapter_{chapter_number}.txt"
-        with open(chapter_file, 'r') as f:
+        with open(chapter_file, 'r', encoding='utf-8') as f:
             text = f.read()
             
         # Load metadata
         metadata_file = chapters_dir / f"chapter_{chapter_number}_metadata.json"
-        with open(metadata_file, 'r') as f:
+        with open(metadata_file, 'r', encoding='utf-8') as f:
             metadata = json.load(f)
             
         return {

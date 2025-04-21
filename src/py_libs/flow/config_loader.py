@@ -14,10 +14,15 @@ class ConfigLoader:
             openai_client: Optional OpenAI client for beat analysis
         """
         self.story_path = story_path
-        self.config_path = story_path / "config.json"
-        self.prompt_path = story_path / "prompt.yaml"
-        self.beats_path = story_path / "beats.yaml"
+        self.shared_config_path = Path("config/shared")
+        self.config_path = self.shared_config_path / "config.json"
+        self.prompt_path = self.shared_config_path / "prompt.yaml"
+        self.beats_path = story_path / "beats.yaml"  # Only beats are story-specific
         self.openai_client = openai_client
+        
+        # Ensure shared config directory exists
+        if not self.shared_config_path.exists():
+            raise FileNotFoundError(f"Shared config directory not found at {self.shared_config_path}")
         
     def load_config(self) -> Dict[str, Any]:
         """
@@ -25,12 +30,23 @@ class ConfigLoader:
         
         Returns:
             Dictionary containing the story configuration
+        
+        Raises:
+            FileNotFoundError: If the config file doesn't exist
         """
         if not self.config_path.exists():
-            return self._create_default_config()
+            raise FileNotFoundError(f"Shared config file not found at {self.config_path}")
             
-        with open(self.config_path, 'r') as f:
-            return json.load(f)
+        with open(self.config_path, 'r', encoding='utf-8') as f:
+            config = json.load(f)
+            # Ensure required settings are present
+            config.update({
+                "model": "gpt-4-turbo-preview",
+                "max_tokens": 1000,
+                "temperature": 0.7,
+                "supported_languages": ["en", "zh"]
+            })
+            return config
             
     def load_prompts(self) -> Dict[str, Any]:
         """
@@ -38,26 +54,38 @@ class ConfigLoader:
         
         Returns:
             Dictionary containing the prompt templates
+            
+        Raises:
+            FileNotFoundError: If the prompt file doesn't exist
         """
         if not self.prompt_path.exists():
-            return self._create_default_prompts()
+            raise FileNotFoundError(f"Shared prompt file not found at {self.prompt_path}")
             
-        with open(self.prompt_path, 'r') as f:
-            return yaml.safe_load(f)
-
-    def load_beats(self) -> List[str]:
+        with open(self.prompt_path, 'r', encoding='utf-8') as f:
+            prompts = yaml.safe_load(f)
+            # Ensure all required prompts are present
+            required_prompts = ["beat_expansion", "style_guidance", "character_extraction", "story_analysis"]
+            for prompt in required_prompts:
+                if prompt not in prompts:
+                    prompts[prompt] = f"Default prompt for {prompt}: {{text}}"
+            return prompts
+            
+    def load_beats(self) -> List[Dict[str, str]]:
         """
-        Load the story beats descriptions.
+        Load the story beats.
         
         Returns:
-            List of beat descriptions
+            List of story beats
+            
+        Raises:
+            FileNotFoundError: If the beats file doesn't exist
         """
         if not self.beats_path.exists():
-            return self._create_default_beats()
+            raise FileNotFoundError(f"Beats file not found at {self.beats_path}")
             
-        with open(self.beats_path, 'r') as f:
-            beats_config = yaml.safe_load(f)
-            return beats_config.get('beats', [])
+        with open(self.beats_path, 'r', encoding='utf-8') as f:
+            data = yaml.safe_load(f)
+            return data["beats"]
 
     def analyze_beat(self, beat_description: str, story_context: str = None) -> Dict[str, Any]:
         """
@@ -152,8 +180,8 @@ class ConfigLoader:
             }
         }
         
-        with open(self.config_path, 'w') as f:
-            json.dump(config, f, indent=2)
+        with open(self.config_path, 'w', encoding='utf-8') as f:
+            json.dump(config, f, indent=2, ensure_ascii=False)
             
         return config
         
@@ -214,8 +242,8 @@ class ConfigLoader:
             """
         }
         
-        with open(self.prompt_path, 'w') as f:
-            yaml.dump(prompts, f)
+        with open(self.prompt_path, 'w', encoding='utf-8') as f:
+            yaml.dump(prompts, f, allow_unicode=True)
             
         return prompts
 
@@ -224,7 +252,7 @@ class ConfigLoader:
         beats = ["Initial story setup and character introduction"]
         
         beats_config = {"beats": beats}
-        with open(self.beats_path, 'w') as f:
-            yaml.dump(beats_config, f)
+        with open(self.beats_path, 'w', encoding='utf-8') as f:
+            yaml.dump(beats_config, f, allow_unicode=True)
             
         return beats 

@@ -4,54 +4,43 @@ from pathlib import Path
 import json
 
 class StoryGenerator:
-    def __init__(self, story_path: Path, openai_client: OpenAI | None = None):
+    def __init__(self, story_path: Path, openai_client: OpenAI | None = None, language: str = "en"):
         """
-        Initialize the story generator for a story.
+        Initialize the story generator.
         
         Args:
             story_path: Path to the story directory
-            openai_client: OpenAI client instance to use, if None a new one will be created
+            openai_client: OpenAI client instance (optional)
+            language: Language to use for generation (default: "en")
         """
         self.story_path = story_path
-        self.config_path = story_path / "config.json"
+        self.shared_config_path = Path("config/shared")
         self.client = openai_client if openai_client is not None else OpenAI()
+        self.language = language
         self._load_config()
         
     def _load_config(self):
-        """Load model configuration."""
-        with open(self.config_path, 'r') as f:
-            config = json.load(f)
-            self.model_config = config["model"]
+        """Load configuration from shared config directory."""
+        with open(self.shared_config_path / "config.json", 'r', encoding='utf-8') as f:
+            self.config = json.load(f)
+            # Ensure model is set to gpt-4-turbo-preview
+            self.config["model"] = "gpt-4-turbo-preview"
+            # Set a reasonable default for max_tokens if not specified
+            if "max_tokens" not in self.config:
+                self.config["max_tokens"] = 2000  # Default to 2000 tokens for full chapters
             
-    def generate_text(self, prompt: str, temperature: Optional[float] = None) -> str:
-        """
-        Generate text using the configured LLM.
-        
-        Args:
-            prompt: The prompt to generate from
-            temperature: Optional temperature override
-            
-        Returns:
-            Generated text
-        """
-        # Use provided temperature or default from config
-        temp = temperature if temperature is not None else self.model_config["temperature"]
-        
-        try:
-            response = self.client.chat.completions.create(
-                model=self.model_config["name"],
-                messages=[
-                    {"role": "system", "content": "You are a creative writing assistant."},
-                    {"role": "user", "content": prompt}
-                ],
-                temperature=temp,
-                max_tokens=self.model_config["max_tokens"]
-            )
-            
-            return response.choices[0].message.content.strip()
-            
-        except Exception as e:
-            raise Exception(f"Error generating text: {str(e)}")
+    def generate_text(self, prompt: str) -> str:
+        """Generate text based on a prompt."""
+        response = self.client.chat.completions.create(
+            model=self.config.get("model", "gpt-4-turbo-preview"),
+            messages=[
+                {"role": "system", "content": f"You are a creative writing assistant. Generate text in {self.language} language."},
+                {"role": "user", "content": prompt}
+            ],
+            temperature=self.config.get("temperature", 0.7),
+            max_tokens=self.config.get("max_tokens", 100)
+        )
+        return response.choices[0].message.content.strip()
             
     def expand_beat(self, beat: str, context: str, style: Dict[str, str]) -> str:
         """
@@ -66,7 +55,7 @@ class StoryGenerator:
             Expanded scene text
         """
         prompt = f"""
-        Expand the following narrative beat into a detailed scene:
+        Expand the following narrative beat into a detailed scene in {self.language} language:
         
         Beat: {beat}
         
@@ -117,7 +106,7 @@ class StoryGenerator:
         - suggestions: List of improvement suggestions
         """
         
-        response = self.generate_text(prompt, temperature=0.3)
+        response = self.generate_text(prompt)
         try:
             return json.loads(response)
         except json.JSONDecodeError:

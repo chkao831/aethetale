@@ -27,7 +27,7 @@ class PromptTemplate:
         if not file_path.exists():
             raise FileNotFoundError(f"Prompt template file not found: {file_path}")
             
-        with open(file_path, 'r') as f:
+        with open(file_path, 'r', encoding='utf-8') as f:
             template = f.read().strip()
             
         return cls(
@@ -38,7 +38,7 @@ class PromptTemplate:
         
     def save_to_file(self, file_path: Path) -> None:
         """Save prompt template to file."""
-        with open(file_path, 'w') as f:
+        with open(file_path, 'w', encoding='utf-8') as f:
             f.write(self.template)
             
     def add_variable(self, name: str, value: str) -> None:

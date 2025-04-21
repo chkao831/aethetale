@@ -1,0 +1,125 @@
+{
+  "男人": {
+    "name": "男人",
+    "aliases": [
+      "Soldier",
+      "The Man"
+    ],
+    "role": "Protagonist",
+    "occupation": "Military personnel",
+    "personality_traits": [
+      "Stoic",
+      "精悍",
+      "Mysterious",
+      "Commanding",
+      "沉稳",
+      "独特气质",
+      "Determined",
+      "Confident"
+    ],
+    "goals": [
+      "Fulfill a mission",
+      "Complete mission",
+      "Uncover the mysteries of the ancient gate",
+      "Fulfill a unique mission",
+      "Uncover secrets",
+      "Uncover the mysteries of the ancient door",
+      "Complete a mission",
+      "探索冥界",
+      "Uncover mysteries"
+    ],
+    "fears": [
+      "Failure",
+      "Betrayal",
+      "未知的危险"
+    ],
+    "lovers": [],
+    "friends": [],
+    "enemies": [],
+    "family": [],
+    "key_events": [
+      "Entering the Underworld",
+      "Approaching the ancient door",
+      "出现在海角附近",
+      "与刻耳柏洛斯相遇",
+      "进入冥界",
+      "Entering the underworld through the ancient door",
+      "Encounter with the three-headed creature",
+      "Approaching the gate of the Underworld",
+      "Entering the gate to the Underworld",
+      "Encounter with Cerberus",
+      "Encounter with the three-headed dog"
+    ],
+    "style_embedding": null,
+    "profile_text": null,
+    "created_at": "2025-04-21T21:18:58.883543",
+    "updated_at": "2025-04-21T22:46:25.109965"
+  },
+  "刻耳柏洛斯": {
+    "name": "刻耳柏洛斯",
+    "aliases": [
+      "The Guardian of the Underworld",
+      "Hound of Hades",
+      "Cerberus"
+    ],
+    "role": "Guardian of the Underworld",
+    "occupation": "Guarding the gates of the Underworld",
+    "personality_traits": [
+      "致命",
+      "Lethal",
+      "忠实",
+      "Deadly",
+      "Obedient",
+      "Ominous",
+      "Menacing",
+      "Fierce",
+      "Loyal",
+      "凶狠",
+      "Ferocious"
+    ],
+    "goals": [
+      "Protect the realm of the dead",
+      "Protect the Underworld",
+      "Protect the underworld",
+      "Protect the entrance to the underworld",
+      "Defend the Underworld",
+      "Protect the entrance to the Underworld",
+      "Enforce death",
+      "守护冥界",
+      "Defend the realm of the dead"
+    ],
+    "fears": [
+      "Failing in duties",
+      "Being overpowered",
+      "Failing in duty",
+      "失去守护的使命",
+      "Failing in its duty",
+      "Disobedience"
+    ],
+    "lovers": [],
+    "friends": [
+      "Hades"
+    ],
+    "enemies": [
+      "Intruders to the Underworld",
+      "Those who seek to disrupt the balance of life and death"
+    ],
+    "family": [],
+    "key_events": [
+      "Encounter with the Man",
+      "与男人相遇",
+      "Meeting the man at the gate of the Underworld",
+      "Meeting the man at the gate",
+      "Encounter with the man at the ancient door",
+      "Encounter with the man at the gate",
+      "出现在门前",
+      "Encounter with the Soldier",
+      "Meeting with the man at the ancient door",
+      "Encounter with the man"
+    ],
+    "style_embedding": null,
+    "profile_text": null,
+    "created_at": "2025-04-21T21:18:58.883627",
+    "updated_at": "2025-04-21T22:46:25.110009"
+  }
+}

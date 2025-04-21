@@ -30,13 +30,13 @@ class VersionManager:
         
     def _load_registry(self) -> Dict[str, Any]:
         """Load the version registry."""
-        with open(self.registry_path, 'r') as f:
+        with open(self.registry_path, 'r', encoding='utf-8') as f:
             return json.load(f)
             
     def _save_registry(self, registry: Dict[str, Any]):
         """Save the version registry."""
-        with open(self.registry_path, 'w') as f:
-            json.dump(registry, f, indent=2)
+        with open(self.registry_path, 'w', encoding='utf-8') as f:
+            json.dump(registry, f, indent=2, ensure_ascii=False)
             
     def create_version(self, description: str) -> str:
         """

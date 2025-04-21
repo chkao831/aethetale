@@ -41,7 +41,7 @@ class ContextRetriever:
         """Load character profiles from the story directory."""
         profiles_path = self.story_path / "character_profiles.json"
         if profiles_path.exists():
-            with open(profiles_path, 'r') as f:
+            with open(profiles_path, 'r', encoding='utf-8') as f:
                 profiles_data = json.load(f)
                 self.character_profiles = {
                     name: CharacterProfile.from_dict(data)
@@ -57,8 +57,8 @@ class ContextRetriever:
             name: profile.to_dict()
             for name, profile in self.character_profiles.items()
         }
-        with open(profiles_path, 'w') as f:
-            json.dump(profiles_data, f, indent=2)
+        with open(profiles_path, 'w', encoding='utf-8') as f:
+            json.dump(profiles_data, f, indent=2, ensure_ascii=False)
             
     def retrieve_context(self, query: str, num_chunks: int = 5) -> List[Dict[str, Any]]:
         """

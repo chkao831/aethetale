@@ -73,8 +73,8 @@ class TextEmbedder:
             output_path: Path to save the embeddings
         """
         os.makedirs(output_path.parent, exist_ok=True)
-        with open(output_path, 'w') as f:
-            json.dump(chunks, f, indent=2)
+        with open(output_path, 'w', encoding='utf-8') as f:
+            json.dump(chunks, f, indent=2, ensure_ascii=False)
             
     def load_embeddings(self, input_path: Path) -> List[Dict[str, Any]]:
         """
@@ -86,5 +86,5 @@ class TextEmbedder:
         Returns:
             List of chunk dictionaries with embeddings
         """
-        with open(input_path, 'r') as f:
+        with open(input_path, 'r', encoding='utf-8') as f:
             return json.load(f) 

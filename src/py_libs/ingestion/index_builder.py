@@ -73,8 +73,8 @@ class IndexBuilder:
             'end_pos': chunk['end_pos']
         } for chunk in chunks]
         
-        with open(output_path, 'w') as f:
-            json.dump(metadata, f, indent=2)
+        with open(output_path, 'w', encoding='utf-8') as f:
+            json.dump(metadata, f, indent=2, ensure_ascii=False)
             
     def load_metadata(self, input_path: Path) -> List[Dict[str, Any]]:
         """
@@ -86,5 +86,5 @@ class IndexBuilder:
         Returns:
             List of chunk dictionaries
         """
-        with open(input_path, 'r') as f:
+        with open(input_path, 'r', encoding='utf-8') as f:
             return json.load(f) 

@@ -1,31 +1,73 @@
 ## Quick start
-`python -m src.main`
+```bash
+# Run with default story (the_clockwork_garden)
+python -m src.main
 
+# Run with specific story
+python -m src.main --story Lucent
+
+# Run with specific language
+python -m src.main --story Lucent --language zh
+```
+
+## Running Tests
+To run the test suite:
+```bash
+python -m pytest src/tests -v
+```
 
 ## Pre-commit
 `pre-commit install`
 
-## Setting up a new story
+## Command Line Options
 
-To set up a new story, follow these steps:
+### 1. Creating a New Story
+To create a new story using the interactive UI:
+```bash
+python -m src.main --create
+```
 
-1. Create a new directory under `stories/` with your story name:
+The UI will guide you through the following steps:
+1. Enter your story name
+2. Create the story directory structure
+3. Write your story content in `story.md`
+4. Define your story beats in `beats.yaml`
+
+### 2. Processing Your Story
+Once you've created your story, you can process it with these options:
+
+1. `--story`: Specify which story to process
+   ```bash
+   python -m src.main --story your_story_name
    ```
-   stories/
-   └── my_new_story/
+
+2. `--language`: Choose the language for generated content
+   - "auto": Auto-detect based on story content (default)
+   - "en": English
+   - "zh": Chinese
+   ```bash
+   python -m src.main --story your_story_name --language zh
    ```
 
-2. Create the required files:
-   - `story.md`: The main story content
-   - `beats.yaml`: List of story beats in chronological order
+The system uses shared configurations from `configs/shared/` for consistent behavior across all stories.
 
-3. Example `beats.yaml` format:
-   ```yaml
-   beats:
-     - "Introduce the protagonist and their initial state"
-     - "Protagonist discovers a mysterious artifact"
-     - "Introduce the mentor character"
-   ```
+## Story Structure
+
+Your story directory should contain:
+```
+stories/
+└── your_story_name/
+    ├── story.md    # Your story content
+    └── beats.yaml  # List of story beats
+```
+
+Example `beats.yaml` format:
+```yaml
+beats:
+  - "Introduce the protagonist and their initial state"
+  - "Protagonist discovers a mysterious artifact"
+  - "Introduce the mentor character"
+```
 
 The system will automatically:
 - Analyze each beat to determine appropriate characters, context, and style

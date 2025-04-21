@@ -13,7 +13,7 @@ class StoryAnalyzer:
             client: OpenAI client instance, if None a new one will be created
         """
         self.story_path = story_path
-        self.prompt_path = story_path / "prompt.yaml"
+        self.shared_prompt_path = Path("config/shared/prompt.yaml")
         self.client = client if client is not None else OpenAI()
         
     def extract_story_elements(self, text: str) -> Dict[str, Any]:
@@ -26,8 +26,11 @@ class StoryAnalyzer:
         Returns:
             Dictionary containing extracted story elements
         """
-        # Load the story analysis prompt
-        with open(self.prompt_path, 'r') as f:
+        # Load the story analysis prompt from shared config
+        if not self.shared_prompt_path.exists():
+            raise FileNotFoundError(f"Shared prompt file not found at {self.shared_prompt_path}")
+            
+        with open(self.shared_prompt_path, 'r', encoding='utf-8') as f:
             import yaml
             prompts = yaml.safe_load(f)
             analysis_prompt = prompts['story_analysis']
@@ -42,18 +45,41 @@ class StoryAnalyzer:
         response = self.client.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[
-                {"role": "system", "content": "You are a story analysis assistant."},
+                {"role": "system", "content": "You are a story analysis assistant. Always respond with valid JSON."},
                 {"role": "user", "content": formatted_prompt}
             ],
-            temperature=0.3
+            temperature=0.3,
+            response_format={"type": "json_object"}
         )
         
-        # Parse the response
+        # Get the response content
+        content = response.choices[0].message.content
+        
+        # Try to parse the JSON response
         try:
-            elements = json.loads(response.choices[0].message.content)
+            # First try direct parsing
+            elements = json.loads(content)
             return elements
-        except json.JSONDecodeError:
-            raise ValueError("Failed to parse story elements from LLM response")
+        except json.JSONDecodeError as e:
+            # If direct parsing fails, try to extract JSON from the response
+            try:
+                # Look for JSON content between ```json and ``` markers
+                import re
+                json_match = re.search(r'```json\s*(.*?)\s*```', content, re.DOTALL)
+                if json_match:
+                    elements = json.loads(json_match.group(1))
+                    return elements
+                else:
+                    # If no markers found, try to find the first valid JSON object
+                    json_match = re.search(r'\{.*\}', content, re.DOTALL)
+                    if json_match:
+                        elements = json.loads(json_match.group(0))
+                        return elements
+                    else:
+                        raise ValueError("No valid JSON found in response")
+            except (json.JSONDecodeError, ValueError) as e:
+                print(f"Raw LLM response:\n{content}")
+                raise ValueError(f"Failed to parse story elements from LLM response: {str(e)}")
             
     def save_story_elements(self, elements: Dict[str, Any]):
         """
@@ -62,8 +88,8 @@ class StoryAnalyzer:
         Args:
             elements: Dictionary of story elements
         """
-        with open(self.story_path / "story_elements.json", 'w') as f:
-            json.dump(elements, f, indent=2)
+        with open(self.story_path / "story_elements.json", 'w', encoding='utf-8') as f:
+            json.dump(elements, f, indent=2, ensure_ascii=False)
             
     def load_story_elements(self) -> Dict[str, Any]:
         """
@@ -72,7 +98,7 @@ class StoryAnalyzer:
         Returns:
             Dictionary of story elements
         """
-        with open(self.story_path / "story_elements.json", 'r') as f:
+        with open(self.story_path / "story_elements.json", 'r', encoding='utf-8') as f:
             return json.load(f)
             
     def update_story_elements(self, new_text: str):

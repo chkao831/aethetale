@@ -97,5 +97,5 @@ class TextSplitter:
         Returns:
             List of chunk dictionaries
         """
-        with open(input_path, 'r') as f:
+        with open(input_path, 'r', encoding='utf-8') as f:
             return json.load(f) 

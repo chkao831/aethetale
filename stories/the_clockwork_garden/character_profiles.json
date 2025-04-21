@@ -5,24 +5,30 @@
     "role": "Protagonist",
     "occupation": "Botanist",
     "personality_traits": [
-      "Determined",
-      "Inquisitive",
+      "Innovative",
       "Compassionate",
       "Empathetic",
       "Curious",
-      "Innovative"
+      "Inquisitive",
+      "Determined"
     ],
     "goals": [
-      "Help the garden evolve",
+      "Help the garden grow and evolve",
       "Understand the harmony between nature and machine",
+      "Help the garden evolve",
       "Prove existence of Clockwork Garden"
     ],
     "fears": [
-      "Being unable to bridge the gap between organic and mechanical",
       "Failure to uncover the garden's secrets",
       "Failure to understand the garden's purpose",
       "Losing the connection between organic and mechanical",
-      "Being unable to help the garden evolve"
+      "Failure to understand the garden's secrets",
+      "Failure",
+      "Isolation",
+      "Being dismissed as a dreamer",
+      "Being unable to help the garden evolve",
+      "Being unable to bridge the gap between organic and mechanical",
+      "Harm coming to the Clockwork Garden"
     ],
     "lovers": [],
     "friends": [
@@ -33,20 +39,27 @@
       {
         "relation_type": "grandmother",
         "name": "Grandmother"
+      },
+      {
+        "relation_type": "Grandmother",
+        "name": "Grandmother"
       }
     ],
     "key_events": [
-      "Realizing her role in the garden's evolution",
-      "Discovering the Clockwork Garden",
       "Discovery of Clockwork Garden",
-      "Observing the garden's evolution",
+      "Helping the garden grow",
+      "Discovering the Clockwork Garden",
+      "Realizing her role in the garden's evolution",
+      "Observation of garden's evolution",
+      "Interacting with the Garden Keeper",
       "Interaction with Garden Keeper",
-      "Observation of garden's evolution"
+      "Realization of garden's evolution",
+      "Observing the garden's evolution"
     ],
     "style_embedding": null,
     "profile_text": null,
     "created_at": "2025-04-21T20:10:27.895175",
-    "updated_at": "2025-04-21T20:50:25.650058"
+    "updated_at": "2025-04-21T22:44:06.834185"
   },
   "Garden Keeper": {
     "name": "Garden Keeper",
@@ -56,29 +69,38 @@
     "role": "Guardian",
     "occupation": "Maintainer of the Clockwork Garden",
     "personality_traits": [
-      "Wise",
-      "Protective",
       "Ancient wisdom",
+      "Ancient",
+      "Wise",
       "Mysterious",
-      "Ancient"
+      "Protective"
     ],
     "goals": [
-      "Preserve the harmony between nature and machine",
       "Evolve the garden's existence",
-      "Evolve the garden into a new form of life",
+      "Preserve the garden's history",
+      "Facilitate its evolution",
+      "Evolve the garden",
+      "Preserve city's history in the garden",
       "Find a caretaker for the garden",
-      "Find someone to help the garden evolve",
-      "Preserve the history of the city in the garden"
+      "Preserve the history of the city in the garden",
+      "Preserve the harmony between nature and machine",
+      "Evolve the garden into a new form of life",
+      "Find someone to help the garden evolve"
     ],
     "fears": [
-      "The garden's secrets being misused",
-      "The garden's destruction",
-      "The garden's secrets being lost",
-      "Decay of the garden",
-      "Losing the balance between nature and machine",
-      "Being left without a successor",
+      "Loss of balance between nature and machine",
       "Being misunderstood by visitors",
-      "The garden not reaching its full potential"
+      "The garden's stagnation or destruction",
+      "Destruction of the garden",
+      "The garden's secrets being misused",
+      "Decay of the garden",
+      "The garden's stagnation",
+      "Being left without a successor",
+      "The garden's destruction",
+      "Being misunderstood",
+      "The garden not reaching its full potential",
+      "Losing the balance between nature and machine",
+      "The garden's secrets being lost"
     ],
     "lovers": [],
     "friends": [
@@ -87,18 +109,20 @@
     "enemies": [],
     "family": [],
     "key_events": [
-      "Guiding Lena in understanding the garden's purpose",
-      "Welcoming Lena to the garden",
-      "Revealing the garden to Lena",
-      "Revealing the garden's purpose to Lena",
       "Revealing the garden's purpose",
       "Meeting Lena",
+      "Witnessing the garden's evolution",
+      "Welcoming Lena to the garden",
       "Guiding Lena in understanding the garden",
-      "Witnessing the garden's evolution"
+      "Revealing the garden to Lena",
+      "Guiding Lena in understanding the garden's purpose",
+      "Revealing the garden's purpose to Lena",
+      "Observing the garden's transformation",
+      "Observing the garden's evolution"
     ],
     "style_embedding": null,
     "profile_text": null,
     "created_at": "2025-04-21T20:10:27.895221",
-    "updated_at": "2025-04-21T20:50:25.650107"
+    "updated_at": "2025-04-21T22:44:06.834250"
   }
 }

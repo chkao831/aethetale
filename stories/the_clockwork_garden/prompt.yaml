@@ -1,0 +1,41 @@
+story_analysis: |
+  Analyze the following story text and extract the following elements in JSON format:
+  
+  {{
+    "style": {{
+      "tone": "string describing the overall tone",
+      "pacing": "string describing the story's pacing",
+      "narrative_style": "string describing the narrative style"
+    }},
+    "characters": {{
+      "character_name": {{
+        "role": "string describing their role",
+        "traits": ["list of character traits"],
+        "arc": "string describing their character arc"
+      }}
+    }},
+    "world": {{
+      "setting": "string describing the main setting",
+      "rules": ["list of unique world rules or phenomena"],
+      "atmosphere": "string describing the world's atmosphere"
+    }},
+    "themes": ["list of main themes in the story"]
+  }}
+  
+  Story text:
+  {text}
+
+beat_expansion: |
+  Write a scene that expands on the following beat:
+  {beat}
+  
+  Context:
+  {context}
+  
+  Style guidelines:
+  - Tone: {tone}
+  - Point of View: {pov}
+  - Tense: {tense}
+  
+  Write a vivid, engaging scene that maintains consistency with the provided context and style guidelines.
+  Focus on showing rather than telling, and incorporate sensory details to bring the scene to life. 

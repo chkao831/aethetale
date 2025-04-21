@@ -14,6 +14,7 @@ from src.py_libs.flow.prompt_builder import PromptBuilder
 from src.py_libs.flow.retriever import ContextRetriever
 from src.py_libs.flow.generator import StoryGenerator
 from src.py_libs.flow.chapter_stitcher import ChapterStitcher
+from src.py_libs.flow.character_manager import CharacterManager
 
 def main():
     # Check for OpenAI API key
@@ -112,6 +113,30 @@ def main():
         print(f"❌ Error during ingestion: {e}", file=sys.stderr)
         raise
 
+    # ===== CHARACTER PROFILE EXTRACTION =====
+    print("\n=== CHARACTER PROFILE EXTRACTION ===")
+    
+    try:
+        # Initialize character manager
+        character_manager = CharacterManager(story_path, openai_client)
+        print("✅ CharacterManager initialized")
+        
+        # Extract and update character profiles
+        character_manager.update_character_profiles(story_text)
+        print("✅ Character profiles extracted and updated")
+        
+        # Print character network
+        network = character_manager.get_character_network()
+        print("\nCharacter Relationship Network:")
+        for character, related in network.items():
+            print(f"\n{character}:")
+            for relation in related:
+                print(f"  - {relation}")
+                
+    except Exception as e:
+        print(f"❌ Error during character profile extraction: {e}", file=sys.stderr)
+        raise
+
     # ===== FLOW PHASE =====
     print("\n=== FLOW PHASE ===")
     
@@ -132,8 +157,15 @@ def main():
         # Example: Generate a character introduction
         print("\nGenerating character introduction...")
         
-        # Get context about the character
+        # Get character profile and context
         character_name = "Lena"  # Using the main character from the story
+        character_profile = retriever.get_character_profile(character_name)
+        if character_profile:
+            print(f"\nCharacter Profile for {character_name}:")
+            print(f"Role: {character_profile.role}")
+            print(f"Traits: {', '.join(character_profile.personality_traits)}")
+            print(f"Goals: {', '.join(character_profile.goals)}")
+            
         character_context = retriever.get_character_context(character_name)
         print(f"✅ Retrieved context for {character_name}")
 

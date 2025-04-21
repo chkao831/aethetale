@@ -1,48 +1,13 @@
-from dataclasses import dataclass
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 from datetime import datetime
+from pydantic import BaseModel, Field
 
-@dataclass
-class Beat:
+class Beat(BaseModel):
     """Represents a narrative beat in the story."""
-    id: str
-    content: str
-    priority_fields: List[str]
-    metadata: dict
-    created_at: datetime
-    updated_at: datetime
-    dependencies: Optional[List[str]] = None
-    
-    def __post_init__(self):
-        """Validate beat data after initialization."""
-        if not self.id:
-            raise ValueError("Beat ID cannot be empty")
-        if not self.content:
-            raise ValueError("Beat content cannot be empty")
-        if not self.priority_fields:
-            raise ValueError("Priority fields cannot be empty")
-            
-    def to_dict(self) -> dict:
-        """Convert beat to dictionary format."""
-        return {
-            "id": self.id,
-            "content": self.content,
-            "priority_fields": self.priority_fields,
-            "metadata": self.metadata,
-            "created_at": self.created_at.isoformat(),
-            "updated_at": self.updated_at.isoformat(),
-            "dependencies": self.dependencies
-        }
-    
-    @classmethod
-    def from_dict(cls, data: dict) -> 'Beat':
-        """Create beat from dictionary data."""
-        return cls(
-            id=data["id"],
-            content=data["content"],
-            priority_fields=data["priority_fields"],
-            metadata=data.get("metadata", {}),
-            created_at=datetime.fromisoformat(data["created_at"]),
-            updated_at=datetime.fromisoformat(data["updated_at"]),
-            dependencies=data.get("dependencies")
-        )
+    id: str = Field(..., description="Unique identifier for the beat")
+    content: str = Field(..., description="The actual content/description of the beat")
+    priority_fields: List[str] = Field(..., description="Fields to prioritize during retrieval")
+    metadata: Dict[str, Any] = Field(default_factory=dict, description="Additional metadata about the beat")
+    dependencies: Optional[List[str]] = Field(None, description="IDs of beats that this beat depends on")
+    created_at: datetime = Field(default_factory=datetime.now, description="Timestamp of beat creation")
+    updated_at: datetime = Field(default_factory=datetime.now, description="Timestamp of last beat update")

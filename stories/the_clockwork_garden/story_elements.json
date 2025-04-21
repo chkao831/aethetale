@@ -1,6 +1,6 @@
 {
   "style": {
-    "tone": "Enchanting and whimsical",
+    "tone": "Whimsical and magical",
     "pacing": "Slow and contemplative",
     "narrative_style": "Descriptive and immersive"
   },
@@ -10,9 +10,9 @@
       "traits": [
         "Curious",
         "Determined",
-        "Inquisitive"
+        "Knowledgeable"
       ],
-      "arc": "From seeking proof to becoming a catalyst for evolution"
+      "arc": "Becoming the bridge between organic and mechanical worlds"
     },
     "Garden Keeper": {
       "role": "Guardian of the Clockwork Garden",
@@ -21,29 +21,24 @@
         "Mysterious",
         "Wise"
       ],
-      "arc": "Guiding Lena towards understanding and growth"
+      "arc": "Seeking someone to help the garden evolve"
     }
   },
   "world": {
-    "setting": "Industrial district with a fantastical Clockwork Garden",
+    "setting": "Industrial district with a Clockwork Garden",
     "rules": [
       "Mechanical plants with memories",
-      "Blurring boundaries between organic and mechanical"
+      "Organic-mechanical evolution"
     ],
-    "atmosphere": "Magical and surreal"
+    "atmosphere": "Enchanting and surreal"
   },
   "themes": [
-    "Exploration of boundaries and possibilities",
-    "Legacy and succession",
-    "Harmony between Contrasting Elements",
     "Harmony between nature and technology",
-    "Discovery and understanding",
-    "Exploration of the unknown",
     "Discovery and transformation",
-    "Exploration of boundaries between organic and mechanical",
+    "The power of understanding and connection",
+    "Exploration of the unknown",
     "Evolution and growth",
-    "Exploration of new possibilities",
-    "Nature vs. Technology",
-    "Evolution and Growth"
+    "Exploration of boundaries between organic and mechanical",
+    "Exploration and discovery"
   ]
 }

@@ -2,105 +2,139 @@ import os
 import sys
 import gc
 from pathlib import Path
-from openai import OpenAI
+import pytest
+from unittest.mock import Mock, patch
+import numpy as np
+import json
 from src.py_libs.ingestion.story_setup import StorySetup
 
-def test_story_setup():
-    # Check for OpenAI API key
-    if not os.getenv("OPENAI_API_KEY"):
-        raise ValueError("OPENAI_API_KEY environment variable is not set. Please set it before running tests.")
+@pytest.fixture
+def mock_openai_client():
+    """Create a mock OpenAI client with predefined story analysis response."""
+    client = Mock()
+    client.chat.completions.create.return_value.choices = [
+        Mock(message=Mock(content='''
+        {
+            "style": {
+                "tone": "whimsical",
+                "pacing": "steady",
+                "narrative_style": "descriptive"
+            },
+            "characters": {
+                "Lena": {
+                    "role": "protagonist",
+                    "traits": ["curious", "determined"],
+                    "arc": "discovery"
+                }
+            },
+            "world": {
+                "setting": "magical garden",
+                "rules": ["mechanical and natural elements coexist"],
+                "atmosphere": "mysterious"
+            },
+            "themes": ["nature vs technology", "discovery", "harmony"]
+        }
+        '''))
+    ]
+    return client
 
-    print("Debug: OpenAI API key is set")
+@pytest.fixture
+def mock_embedder():
+    """Create a mock embedder that returns predefined embeddings with all required fields."""
+    embedder = Mock()
+    
+    # Mock the embed_chunks method
+    test_embedding = np.random.rand(384)
+    embedder.embed_chunks.return_value = [
+        {
+            "text": "Test chunk",
+            "embedding": test_embedding,
+            "start_pos": 0,
+            "end_pos": 10
+        }
+    ]
+    
+    # Mock the save_embeddings method
+    def save_embeddings(chunks, output_path):
+        # Convert numpy arrays to lists for JSON serialization
+        serializable_chunks = []
+        for chunk in chunks:
+            serializable_chunk = chunk.copy()
+            if isinstance(chunk['embedding'], np.ndarray):
+                serializable_chunk['embedding'] = chunk['embedding'].tolist()
+            serializable_chunks.append(serializable_chunk)
+            
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(output_path, 'w') as f:
+            json.dump(serializable_chunks, f)
+    
+    embedder.save_embeddings = save_embeddings
+    return embedder
 
-    # Initialize OpenAI client
-    try:
-        openai_client = OpenAI()
-        print("Debug: OpenAI client initialized successfully")
-    except Exception as e:
-        print(f"Error initializing OpenAI client: {e}", file=sys.stderr)
-        raise
-
-    # Initialize story setup
-    story_path = Path("stories/the_clockwork_garden")
-    if not story_path.exists():
-        raise FileNotFoundError(f"Story path {story_path} does not exist")
-
-    print(f"Debug: Story path exists at {story_path}")
-
-    try:
-        story_setup = StorySetup(story_path, openai_client=openai_client)
-        # Override the default model with a smaller one
-        story_setup.embedder.model_name = "paraphrase-MiniLM-L3-v2"
-        print("Debug: StorySetup initialized successfully")
-    except Exception as e:
-        print(f"Error initializing StorySetup: {e}", file=sys.stderr)
-        raise
-
-    # Read the story text
-    story_file = story_path / "content" / "story.txt"
-    if not story_file.exists():
-        raise FileNotFoundError(f"Story file {story_file} does not exist")
-
-    print(f"Debug: Story file exists at {story_file}")
-
-    try:
-        with open(story_file, "r") as f:
-            story_text = f.read()
-        print(f"Debug: Successfully read story file ({len(story_text)} characters)")
-    except Exception as e:
-        print(f"Error reading story file: {e}", file=sys.stderr)
-        raise
-
-    # Process the story
-    print("\nStarting story processing...")
-    try:
-        print("Debug: Starting story analysis...")
-        story_setup.analyzer.update_story_elements(story_text)
-        print("Debug: Story analysis complete")
-
-        print("Debug: Starting text splitting...")
-        chunks = story_setup.splitter.split_text(story_text)
-        print(f"Debug: Text split into {len(chunks)} chunks")
-
-        print("Debug: Starting embedding generation...")
-        gc.collect()  # Force garbage collection before embedding
-        chunks_with_embeddings = story_setup.embedder.embed_chunks(chunks)
-        print("Debug: Embeddings generated successfully")
-
-        print("Debug: Building index...")
-        story_setup.index_builder.build_index(chunks_with_embeddings)
-        print("Debug: Index built successfully")
-
-        print("Debug: Creating version and saving artifacts...")
-        version_id = story_setup.version_manager.create_version("Initial version")
-        story_setup._save_artifacts(chunks_with_embeddings, version_id)
-        print(f"Debug: Version created and artifacts saved. Version ID: {version_id}")
-
-    except Exception as e:
-        print(f"Error during story processing: {e}", file=sys.stderr)
-        raise
-
-    # Verify the output
-    print("\nVerifying output files...")
+def test_story_setup(mock_openai_client, mock_embedder, tmp_path):
+    """
+    Test the story setup process with mocked dependencies.
+    
+    This test verifies that:
+    1. Story setup initializes correctly
+    2. Story analysis works with mocked OpenAI responses
+    3. Text splitting and embedding work correctly
+    4. Index building succeeds
+    5. Version management and artifact saving work
+    6. All expected output files are created
+    """
+    # Create temporary story directory structure
+    story_path = tmp_path / "test_story"
+    story_path.mkdir()
+    (story_path / "content").mkdir()
+    (story_path / "content" / "story.txt").write_text("Test story content")
+    
+    # Create necessary config files
+    (story_path / "prompt.yaml").write_text('''
+    story_analysis: |
+        Analyze the following story text and extract elements:
+        {text}
+    ''')
+    
+    # Initialize story setup with mocks
+    story_setup = StorySetup(story_path, openai_client=mock_openai_client)
+    story_setup.embedder = mock_embedder
+    
+    # Read and process the story
+    with open(story_path / "content" / "story.txt", "r") as f:
+        story_text = f.read()
+    
+    # Test story analysis
+    story_setup.analyzer.update_story_elements(story_text)
+    assert (story_path / "story_elements.json").exists(), "Story elements file should be created"
+    
+    # Test text splitting and embedding
+    chunks = story_setup.splitter.split_text(story_text)
+    assert len(chunks) > 0, "Text should be split into at least one chunk"
+    
+    chunks_with_embeddings = story_setup.embedder.embed_chunks(chunks)
+    assert len(chunks_with_embeddings) > 0, "Embeddings should be generated"
+    assert "start_pos" in chunks_with_embeddings[0], "Chunks should have start_pos"
+    assert "end_pos" in chunks_with_embeddings[0], "Chunks should have end_pos"
+    
+    # Test index building
+    story_setup.index_builder.build_index(chunks_with_embeddings)
+    
+    # Test version management and artifact saving
+    version_id = story_setup.version_manager.create_version("Initial version")
+    story_setup._save_artifacts(chunks_with_embeddings, version_id)
+    
+    # Verify output files
     version_dir = story_path / "versions" / version_id
-    faiss_index = version_dir / "faiss_index" / "index.faiss"
-    metadata = version_dir / "faiss_index" / "metadata.json"
-    passages = version_dir / "passages.json"
-    story_elements = story_path / "story_elements.json"
-
-    print(f"Version directory: {version_dir}")
-    print(f"FAISS index exists: {faiss_index.exists()}")
-    print(f"Metadata exists: {metadata.exists()}")
-    print(f"Passages exists: {passages.exists()}")
-    print(f"Story elements exists: {story_elements.exists()}")
-
-    # Verify all required files exist
-    required_files = [faiss_index, metadata, passages, story_elements]
-    missing_files = [str(f) for f in required_files if not f.exists()]
-    if missing_files:
-        raise FileNotFoundError(f"Missing required files: {', '.join(missing_files)}")
-
-    print("\nAll tests passed successfully!")
+    required_files = [
+        version_dir / "faiss_index" / "index.faiss",
+        version_dir / "faiss_index" / "metadata.json",
+        version_dir / "passages.json",
+        story_path / "story_elements.json"
+    ]
+    
+    for file_path in required_files:
+        assert file_path.exists(), f"Required file {file_path} should exist"
 
 if __name__ == "__main__":
     try:

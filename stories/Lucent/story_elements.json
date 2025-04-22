@@ -6,20 +6,22 @@
   },
   "characters": {
     "男人": {
-      "role": "Main character",
+      "role": "Protagonist",
       "traits": [
-        "Military background",
-        "Mysterious aura"
+        "Reserved",
+        "Experienced",
+        "Mysterious"
       ],
-      "arc": "Journey into the underworld"
+      "arc": "Embarking on a journey to the underworld"
     },
     "刻耳柏洛斯": {
       "role": "Guardian of the underworld",
       "traits": [
-        "Three-headed",
-        "Symbol of death and destruction"
+        "Menacing",
+        "Deadly",
+        "Loyal"
       ],
-      "arc": "Protector of the realm of the dead"
+      "arc": "Symbolizes death and destruction"
     }
   },
   "world": {
@@ -31,13 +33,23 @@
     "atmosphere": "Eerie and foreboding"
   },
   "themes": [
-    "Supernatural",
-    "Exploration of the unknown",
+    "Life and death",
+    "Fate",
+    "Destiny",
+    "death",
     "Power dynamics",
-    "Power and sacrifice",
-    "Death and destiny",
+    "transition between worlds",
+    "Journey into the unknown",
+    "Courage",
     "Death",
+    "Death and destiny",
+    "mystery",
+    "fate",
+    "Exploration of the unknown",
+    "Mystery",
     "Power",
-    "Mystery"
+    "Supernatural",
+    "Journey to the unknown",
+    "Power and sacrifice"
   ]
 }

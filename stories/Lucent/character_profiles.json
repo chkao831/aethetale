@@ -1,130 +1,53 @@
 {
   "男人": {
     "name": "男人",
-    "aliases": [
-      "Soldier",
-      "The Man"
-    ],
-    "role": "Protagonist",
-    "occupation": "Military personnel",
+    "aliases": [],
+    "role": "character",
+    "occupation": "",
     "personality_traits": [
-      "沉稳",
-      "Confident",
-      "Mysterious",
-      "勇敢",
-      "Determined",
-      "独特气质",
-      "Commanding",
-      "Stoic",
-      "精悍"
+      "determined",
+      "neat appearance",
+      "mysterious",
+      "precise",
+      "disciplined",
+      "military background"
     ],
-    "goals": [
-      "探索冥界",
-      "Fulfill a mission",
-      "Uncover mysteries",
-      "Complete a mission",
-      "Uncover secrets",
-      "Fulfill a unique mission",
-      "Uncover the mysteries of the ancient door",
-      "Uncover the mysteries of the ancient gate",
-      "Complete mission"
-    ],
-    "fears": [
-      "Betrayal",
-      "未知的危险",
-      "Failure",
-      "失去自己"
-    ],
+    "goals": [],
+    "fears": [],
     "lovers": [],
     "friends": [],
     "enemies": [],
     "family": [],
-    "key_events": [
-      "Encounter with the three-headed creature",
-      "Approaching the gate of the Underworld",
-      "Entering the underworld through the ancient door",
-      "进入冥界",
-      "Entering the Underworld",
-      "Entering the gate to the Underworld",
-      "Approaching the ancient door",
-      "Encounter with the three-headed dog",
-      "与刻耳柏洛斯相遇",
-      "Encounter with Cerberus",
-      "出现在海角附近"
-    ],
-    "style_embedding": null,
-    "profile_text": null,
-    "created_at": "2025-04-21T21:18:58.883543",
-    "updated_at": "2025-04-22T22:12:24.233221"
+    "key_events": [],
+    "profile_text": "The man with short brown hair, standard facial features, and a military aura. He wears a slim-fit dark green shirt and moves with precise and disciplined steps. He has a mysterious and ancient vibe.",
+    "created_at": "2025-04-22T23:53:34.408937",
+    "updated_at": "2025-04-23T00:17:40.213016",
+    "style_embedding": null
   },
   "刻耳柏洛斯": {
     "name": "刻耳柏洛斯",
-    "aliases": [
-      "Cerberus",
-      "The Guardian of the Underworld",
-      "Hound of Hades"
-    ],
-    "role": "Guardian of the Underworld",
-    "occupation": "Guarding the gates of the Underworld",
+    "aliases": [],
+    "role": "character",
+    "occupation": "",
     "personality_traits": [
-      "Obedient",
-      "忠实",
-      "Ferocious",
-      "凶狠",
-      "Lethal",
-      "Deadly",
-      "Loyal",
-      "致命",
-      "Ominous",
-      "Fierce",
-      "Menacing"
+      "terrifying presence",
+      "guardian of the underworld",
+      "symbol of death",
+      "lethal",
+      "deadly venom",
+      "terrifying",
+      "three-headed"
     ],
-    "goals": [
-      "Defend the realm of the dead",
-      "Protect the entrance to the Underworld",
-      "Protect the underworld",
-      "Protect the realm of the dead",
-      "守护冥界",
-      "保护冥界",
-      "Enforce death",
-      "Defend the Underworld",
-      "Protect the Underworld",
-      "Protect the entrance to the underworld"
-    ],
-    "fears": [
-      "失去守护的使命",
-      "Being overpowered",
-      "Failing in duties",
-      "Failing in its duty",
-      "Failing in duty",
-      "失去控制",
-      "Disobedience"
-    ],
+    "goals": [],
+    "fears": [],
     "lovers": [],
-    "friends": [
-      "Hades"
-    ],
-    "enemies": [
-      "Intruders to the Underworld",
-      "Those who seek to disrupt the balance of life and death"
-    ],
+    "friends": [],
+    "enemies": [],
     "family": [],
-    "key_events": [
-      "与男人相遇",
-      "Encounter with the man at the ancient door",
-      "示意男人通过门进入冥界",
-      "Encounter with the man at the gate",
-      "Encounter with the man",
-      "出现在门前",
-      "Meeting the man at the gate",
-      "Encounter with the Man",
-      "Meeting with the man at the ancient door",
-      "Encounter with the Soldier",
-      "Meeting the man at the gate of the Underworld"
-    ],
-    "style_embedding": null,
-    "profile_text": null,
-    "created_at": "2025-04-21T21:18:58.883627",
-    "updated_at": "2025-04-22T22:12:24.233284"
+    "key_events": [],
+    "profile_text": "A three-headed creature named Cerberus, symbolizing death and destruction. Each head has greenish-blue flames and emits a terrifying heat. Its sharp teeth contain lethal venom, and its howls are like horns from the depths of hell.",
+    "created_at": "2025-04-22T23:53:34.409003",
+    "updated_at": "2025-04-23T00:17:40.213187",
+    "style_embedding": null
   }
 }

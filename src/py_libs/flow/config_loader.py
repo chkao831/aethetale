@@ -5,20 +5,22 @@ from typing import Dict, Any, List
 from openai import OpenAI
 
 class ConfigLoader:
-    def __init__(self, story_path: Path, openai_client: OpenAI = None):
+    def __init__(self, story_path: Path, openai_client: OpenAI | None = None, model: str = "gpt-3.5-turbo"):
         """
         Initialize the config loader for a story.
         
         Args:
             story_path: Path to the story directory
-            openai_client: Optional OpenAI client for beat analysis
+            openai_client: OpenAI client instance to use, if None a new one will be created
+            model: Model to use for generation
         """
         self.story_path = story_path
         self.shared_config_path = Path("config/shared")
         self.config_path = self.shared_config_path / "config.json"
         self.prompt_path = self.shared_config_path / "prompt.yaml"
         self.beats_path = story_path / "beats.yaml"  # Only beats are story-specific
-        self.openai_client = openai_client
+        self.client = openai_client if openai_client is not None else OpenAI()
+        self.model = model
         
         # Ensure shared config directory exists
         if not self.shared_config_path.exists():
@@ -41,7 +43,7 @@ class ConfigLoader:
             config = json.load(f)
             # Ensure required settings are present
             config.update({
-                "model": "gpt-3.5-turbo",
+                "model": self.model,
                 "max_tokens": 1000,
                 "temperature": 0.7,
                 "supported_languages": ["en", "zh"]
@@ -98,7 +100,7 @@ class ConfigLoader:
         Returns:
             Dictionary containing analyzed beat information
         """
-        if not self.openai_client:
+        if not self.client:
             raise ValueError("OpenAI client not provided for beat analysis")
             
         # Load prompts
@@ -129,8 +131,8 @@ class ConfigLoader:
         """).format(beat=beat_description, context=story_context or "No context provided")
         
         # Get analysis from LLM
-        response = self.openai_client.chat.completions.create(
-            model="gpt-3.5-turbo",
+        response = self.client.chat.completions.create(
+            model=self.model,
             messages=[
                 {"role": "system", "content": "You are a narrative analysis assistant."},
                 {"role": "user", "content": analysis_prompt}
@@ -165,7 +167,7 @@ class ConfigLoader:
         config = {
             "story_name": self.story_path.name,
             "model": {
-                "name": "gpt-3.5-turbo",
+                "name": self.model,
                 "temperature": 0.7,
                 "max_tokens": 1000
             },

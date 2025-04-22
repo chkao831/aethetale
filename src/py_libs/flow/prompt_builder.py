@@ -30,10 +30,18 @@ class PromptBuilder:
                 Previous story context:
                 {context}
                 
+                {character_contexts}
+                
                 Style guidelines:
                 - Tone: {tone}
                 - Point of View: {pov}
                 - Tense: {tense}
+                
+                Write a detailed scene that:
+                1. Maintains consistency with the provided context
+                2. Follows the style guidelines
+                3. Develops the characters and their relationships based on their established profiles
+                4. Advances the plot naturally
                 """,
                 "style_guidance": "Analyze style: {text}",
                 "character_extraction": "Extract character details: {text}",
@@ -43,16 +51,46 @@ class PromptBuilder:
                 if prompt_name not in self.prompts:
                     self.prompts[prompt_name] = default_prompt
             
-    def build_beat_prompt(self, beats: str, context: str, style: dict) -> str:
+    def build_beat_prompt(self, beats: str, context: str, style: dict, character_contexts: dict = None) -> str:
         """Build a prompt for generating continuous narrative from story beats."""
-        return self.prompts['beat_expansion'].format(
+        # Add character context section if available
+        character_context_section = ""
+        if character_contexts:
+            character_context_section = "\nCharacter Contexts:\n"
+            for character_name, contexts in character_contexts.items():
+                character_context_section += f"\n{character_name}:\n"
+                for i, context_chunk in enumerate(contexts):
+                    character_context_section += f"Context {i+1}:\n{context_chunk['text']}\n"
+        
+        # Format the base prompt
+        base_prompt = self.prompts['beat_expansion'].format(
             beats=beats,
             context=context,
             tone=style.get('tone', 'neutral'),
             pov=style.get('pov', 'third person'),
             tense=style.get('tense', 'past'),
-            language=self.language
+            language=self.language,
+            character_contexts=character_context_section
         )
+        
+        # Add language-specific instructions
+        if self.language == "zh":
+            base_prompt += """
+            
+            重要提示：这是一个中文故事，你必须：
+            1. 完全使用中文写作
+            2. 适当使用中文成语和表达方式
+            3. 保持中文文学风格和传统
+            4. 使用中文标点符号和格式
+            5. 保持所有角色名称和术语的中文形式
+            6. 遵循中文叙事传统和故事讲述模式
+            7. 使用中文特有的文学手法和修辞技巧
+            8. 保持与输入文本相同的中文文学水准
+            
+            请记住：整个回答必须使用中文，包括所有叙事元素、描述和对话。
+            """
+        
+        return base_prompt
         
     def build_style_prompt(self, text: str) -> str:
         """

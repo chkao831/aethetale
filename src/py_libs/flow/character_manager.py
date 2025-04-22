@@ -6,6 +6,7 @@ from datetime import datetime
 from openai import OpenAI
 from src.py_libs.models.character_profile import CharacterProfile, FamilyRelation
 from pydantic import ValidationError
+from .model_config import ModelConfig
 
 class CharacterManager:
     def __init__(self, story_path: Path, openai_client: OpenAI | None = None):
@@ -19,6 +20,7 @@ class CharacterManager:
         self.story_path = story_path
         self.client = openai_client if openai_client is not None else OpenAI()
         self.profiles_path = story_path / "character_profiles.json"
+        self.model_config = ModelConfig()
         
         # Load prompts from shared config
         shared_config_path = Path("config/shared")
@@ -215,108 +217,158 @@ class CharacterManager:
                 
         return profiles
             
-    def update_character_profiles(self, text: str):
+    def update_character_profiles(self, story_text: str) -> Dict[str, Any]:
         """
-        Update character profiles based on new story text.
+        Update character profiles based on story text.
         
         Args:
-            text: New story text to analyze
+            story_text: The story text to analyze
+            
+        Returns:
+            Dictionary containing updated character profiles
         """
-        # Extract new profiles
-        new_profiles = self.extract_character_profiles(text)
+        # Get model configuration
+        model_name = self.model_config.get_model_name()
+        temperature = self.model_config.get_temperature()
         
+        # Call the LLM for character analysis
+        response = self.client.chat.completions.create(
+            model=model_name,
+            messages=[
+                {"role": "system", "content": "You are a character analysis assistant. Always respond with valid JSON."},
+                {"role": "user", "content": f"Analyze the following story text and extract character profiles:\n\n{story_text}"}
+            ],
+            temperature=temperature,
+            response_format={"type": "json_object"}
+        )
+        
+        try:
+            profiles = json.loads(response.choices[0].message.content)
+            self._save_profiles(profiles)
+            return profiles
+        except json.JSONDecodeError:
+            return {"error": "Failed to parse character profiles"}
+            
+    def _save_profiles(self, profiles: Dict[str, Any]):
+        """Save character profiles to file."""
         # Load existing profiles if they exist
         existing_profiles = {}
         if self.profiles_path.exists():
-            try:
-                with open(self.profiles_path, 'r', encoding='utf-8') as f:
-                    existing_data = json.load(f)
-                    for name, data in existing_data.items():
-                        try:
-                            existing_profiles[name] = CharacterProfile(**data)
-                        except ValidationError as e:
-                            print(f"Validation error for existing character {name}: {str(e)}")
-                            continue
-            except (json.JSONDecodeError, ValidationError) as e:
-                print(f"Error loading existing profiles: {str(e)}")
-                
-        # Merge profiles
-        for name, new_profile in new_profiles.items():
-            if name in existing_profiles:
-                # Update existing profile
-                existing_profile = existing_profiles[name]
-                # Merge lists with validation
-                try:
-                    merged_data = {
-                        "name": name,
-                        "aliases": list(set(existing_profile.aliases + new_profile.aliases)),
-                        "role": new_profile.role if len(new_profile.role) > len(existing_profile.role) else existing_profile.role,
-                        "occupation": new_profile.occupation if len(new_profile.occupation) > len(existing_profile.occupation) else existing_profile.occupation,
-                        "personality_traits": list(set(existing_profile.personality_traits + new_profile.personality_traits)),
-                        "goals": list(set(existing_profile.goals + new_profile.goals)),
-                        "fears": list(set(existing_profile.fears + new_profile.fears)),
-                        "lovers": list(set(existing_profile.lovers + new_profile.lovers)),
-                        "friends": list(set(existing_profile.friends + new_profile.friends)),
-                        "enemies": list(set(existing_profile.enemies + new_profile.enemies)),
-                        "family": list({
-                            (rel.relation_type, rel.name): rel
-                            for rel in (existing_profile.family + new_profile.family)
-                        }.values()),
-                        "key_events": list(set(existing_profile.key_events + new_profile.key_events)),
-                        "profile_text": new_profile.profile_text if (new_profile.profile_text and len(new_profile.profile_text) > len(existing_profile.profile_text or "")) else existing_profile.profile_text,
-                        "style_embedding": new_profile.style_embedding or existing_profile.style_embedding,
-                        "created_at": existing_profile.created_at,
-                        "updated_at": datetime.now()
-                    }
-                    existing_profiles[name] = CharacterProfile(**merged_data)
-                except ValidationError as e:
-                    print(f"Error merging profiles for {name}: {str(e)}")
-                    continue
-            else:
-                # Add new profile
-                existing_profiles[name] = new_profile
-                
-        # Save updated profiles
-        try:
-            profiles_data = {
-                name: self._serialize_profile(profile)
-                for name, profile in existing_profiles.items()
+            with open(self.profiles_path, 'r', encoding='utf-8') as f:
+                existing_profiles = json.load(f)
+        
+        # If new profiles are in nested format, convert to root format
+        if isinstance(profiles, dict) and "characters" in profiles:
+            profiles = {
+                char["name"]: {
+                    "name": char["name"],
+                    "role": char.get("role", "character"),
+                    "profile_text": char.get("description", ""),
+                    "personality_traits": char.get("traits", []),
+                    "aliases": char.get("aliases", []),
+                    "occupation": char.get("occupation", ""),
+                    "goals": char.get("goals", []),
+                    "fears": char.get("fears", []),
+                    "lovers": char.get("lovers", []),
+                    "friends": char.get("friends", []),
+                    "enemies": char.get("enemies", []),
+                    "family": char.get("family", []),
+                    "key_events": char.get("key_events", []),
+                    "created_at": datetime.now().isoformat(),
+                    "updated_at": datetime.now().isoformat()
+                }
+                for char in profiles["characters"]
             }
-            with open(self.profiles_path, 'w', encoding='utf-8') as f:
-                json.dump(profiles_data, f, indent=2, ensure_ascii=False)
+        
+        # Merge with existing profiles
+        merged_profiles = {}
+        for name, profile_data in profiles.items():
+            if name in existing_profiles:
+                # Convert to CharacterProfile objects for proper merging
+                existing_profile = CharacterProfile.from_dict(existing_profiles[name])
+                new_profile = CharacterProfile.from_dict(profile_data)
+                
+                # Merge profiles using the original logic
+                merged_data = {
+                    "name": name,
+                    "aliases": list(set(existing_profile.aliases + new_profile.aliases)),
+                    "role": new_profile.role if len(new_profile.role) > len(existing_profile.role) else existing_profile.role,
+                    "occupation": new_profile.occupation if len(new_profile.occupation) > len(existing_profile.occupation) else existing_profile.occupation,
+                    "personality_traits": list(set(existing_profile.personality_traits + new_profile.personality_traits)),
+                    "goals": list(set(existing_profile.goals + new_profile.goals)),
+                    "fears": list(set(existing_profile.fears + new_profile.fears)),
+                    "lovers": list(set(existing_profile.lovers + new_profile.lovers)),
+                    "friends": list(set(existing_profile.friends + new_profile.friends)),
+                    "enemies": list(set(existing_profile.enemies + new_profile.enemies)),
+                    "family": [{"name": rel.name, "relation_type": rel.relation_type} for rel in list({
+                        (rel.relation_type, rel.name): rel
+                        for rel in (existing_profile.family + new_profile.family)
+                    }.values())],
+                    "key_events": list(set(existing_profile.key_events + new_profile.key_events)),
+                    "profile_text": new_profile.profile_text if new_profile.profile_text else existing_profile.profile_text,
+                    "created_at": existing_profile.created_at.isoformat(),
+                    "updated_at": datetime.now().isoformat(),
+                    "style_embedding": None
+                }
+                merged_profiles[name] = merged_data
+            else:
+                # For new profiles, ensure all fields are present and serializable
+                if isinstance(profile_data, CharacterProfile):
+                    profile_data = profile_data.model_dump()
+                # Convert any FamilyRelation objects in family field
+                if "family" in profile_data and profile_data["family"]:
+                    profile_data["family"] = [
+                        {"name": rel["name"], "relation_type": rel["relation_type"]}
+                        if isinstance(rel, dict) else
+                        {"name": rel.name, "relation_type": rel.relation_type}
+                        for rel in profile_data["family"]
+                    ]
+                merged_profiles[name] = profile_data
+        
+        # First serialize to string to validate JSON
+        try:
+            json_str = json.dumps(merged_profiles, ensure_ascii=False, indent=2)
+        except TypeError as e:
+            print(f"Failed to serialize profiles: {e}")
+            print("Profiles data:", merged_profiles)
+            raise
+        
+        # Write to temporary file first
+        temp_path = self.profiles_path.with_suffix('.json.tmp')
+        try:
+            with open(temp_path, 'w', encoding='utf-8') as f:
+                f.write(json_str)
+            # If write succeeded, rename to final file
+            temp_path.replace(self.profiles_path)
         except Exception as e:
-            raise Exception(f"Error saving profiles: {str(e)}")
+            # Clean up temp file if something went wrong
+            if temp_path.exists():
+                temp_path.unlink()
+            raise
             
     def get_character_network(self) -> Dict[str, List[str]]:
         """
-        Generate a character relationship network.
+        Get the character relationship network.
         
         Returns:
-            Dictionary mapping character names to lists of related characters
+            Dictionary mapping character names to their relationships
         """
-        if not self.profiles_path.exists():
+        profiles_path = self.story_path / "character_profiles.json"
+        if not profiles_path.exists():
             return {}
             
-        try:
-            with open(self.profiles_path, 'r') as f:
-                profiles_data = json.load(f)
-                
-            network = {}
-            for name, data in profiles_data.items():
-                try:
-                    profile = CharacterProfile(**data)
-                    related = (
-                        profile.lovers +
-                        profile.friends +
-                        profile.enemies +
-                        [rel.name for rel in profile.family]
-                    )
-                    network[name] = list(set(related))
-                except ValidationError as e:
-                    print(f"Error processing network for {name}: {str(e)}")
-                    continue
-                    
-            return network
-        except Exception as e:
-            print(f"Error generating character network: {str(e)}")
-            return {} 
+        with open(profiles_path, 'r', encoding='utf-8') as f:
+            profiles = json.load(f)
+            
+        network = {}
+        for character, profile in profiles.items():
+            relationships = []
+            if "friends" in profile:
+                relationships.extend(profile["friends"])
+            if "enemies" in profile:
+                relationships.extend(profile["enemies"])
+            if "family" in profile:
+                relationships.extend(profile["family"])
+            network[character] = relationships
+            
+        return network 

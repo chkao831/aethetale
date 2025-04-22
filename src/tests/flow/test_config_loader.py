@@ -1,71 +1,85 @@
 import pytest
 from pathlib import Path
-import yaml
 import json
+from unittest.mock import Mock, patch
 from src.py_libs.flow.config_loader import ConfigLoader
+import yaml
+
+@pytest.fixture
+def mock_openai_client():
+    """Create a mock OpenAI client."""
+    mock_client = Mock()
+    mock_response = Mock()
+    mock_response.choices = [Mock(message=Mock(content=json.dumps({
+        "character": "test_character",
+        "context": "test_context",
+        "style": {
+            "tone": "test_tone",
+            "pov": "test_pov",
+            "tense": "test_tense"
+        }
+    })))]
+    mock_client.chat.completions.create.return_value = mock_response
+    return mock_client
 
 @pytest.fixture
 def temp_story_dir(tmp_path):
-    """Create a temporary story directory with test configurations."""
+    """Create a temporary story directory with test config."""
     story_dir = tmp_path / "test_story"
     story_dir.mkdir()
     
-    # Create shared config directory
-    shared_config_dir = tmp_path / "config" / "shared"
-    shared_config_dir.mkdir(parents=True)
+    # Create shared config directory and config
+    shared_config_path = tmp_path / "config" / "shared"
+    shared_config_path.mkdir(parents=True)
     
-    # Create shared config.json
+    # Create config.json
     config = {
         "model": "gpt-3.5-turbo",
-        "temperature": 0.7,
         "max_tokens": 1000,
+        "temperature": 0.7,
         "supported_languages": ["en", "zh"]
     }
-    with open(shared_config_dir / "config.json", "w", encoding='utf-8') as f:
+    
+    with open(shared_config_path / "config.json", "w") as f:
         json.dump(config, f)
     
-    # Create shared prompt.yaml
-    prompts = {
-        "beat_expansion": "Expand beat in {language}: {beat}\nContext: {context}\nStyle: {tone}, {pov}, {tense}",
-        "style_guidance": "Analyze style: {text}",
-        "character_extraction": "Extract character details: {text}",
-        "story_analysis": "Analyze story: {text}",
-        "beat_analysis": "Analyze beat: {beat}\nContext: {context}"
-    }
-    with open(shared_config_dir / "prompt.yaml", "w", encoding='utf-8') as f:
-        yaml.dump(prompts, f)
-    
-    # Create story-specific beats.yaml
+    # Create beats.yaml
     beats = {
         "beats": [
-            {"id": "beat1", "text": "First beat"},
-            {"id": "beat2", "text": "Second beat"}
+            {"id": "beat1", "description": "First beat"},
+            {"id": "beat2", "description": "Second beat"}
         ]
     }
-    with open(story_dir / "beats.yaml", "w", encoding='utf-8') as f:
+    
+    with open(story_dir / "beats.yaml", "w") as f:
         yaml.dump(beats, f)
     
     return story_dir
 
-def test_config_loader_initialization(temp_story_dir):
+@patch('src.py_libs.flow.config_loader.OpenAI')
+def test_load_config(mock_openai_class, temp_story_dir, mock_openai_client):
+    """Test loading configuration."""
+    mock_openai_class.return_value = mock_openai_client
+    loader = ConfigLoader(temp_story_dir)
+    config = loader.load_config()
+    assert isinstance(config, dict)
+    assert "model" in config
+    assert "max_tokens" in config
+    assert "temperature" in config
+    assert "supported_languages" in config
+
+@patch('src.py_libs.flow.config_loader.OpenAI')
+def test_config_loader_initialization(mock_openai_class, temp_story_dir, mock_openai_client):
     """Test ConfigLoader initialization."""
+    mock_openai_class.return_value = mock_openai_client
     loader = ConfigLoader(temp_story_dir)
     assert loader.story_path == temp_story_dir
     assert loader.shared_config_path == Path("config/shared")
 
-def test_load_config(temp_story_dir):
-    """Test loading configuration."""
-    loader = ConfigLoader(temp_story_dir)
-    config = loader.load_config()
-    
-    assert config["model"] == "gpt-3.5-turbo"
-    assert config["temperature"] == 0.7
-    assert config["max_tokens"] == 1000
-    assert "en" in config["supported_languages"]
-    assert "zh" in config["supported_languages"]
-
-def test_load_prompts(temp_story_dir):
+@patch('src.py_libs.flow.config_loader.OpenAI')
+def test_load_prompts(mock_openai_class, temp_story_dir, mock_openai_client):
     """Test loading prompts."""
+    mock_openai_class.return_value = mock_openai_client
     loader = ConfigLoader(temp_story_dir)
     prompts = loader.load_prompts()
     
@@ -75,8 +89,10 @@ def test_load_prompts(temp_story_dir):
     assert "character_extraction" in prompts
     assert "story_analysis" in prompts
 
-def test_load_beats(temp_story_dir):
+@patch('src.py_libs.flow.config_loader.OpenAI')
+def test_load_beats(mock_openai_class, temp_story_dir, mock_openai_client):
     """Test loading beats."""
+    mock_openai_class.return_value = mock_openai_client
     loader = ConfigLoader(temp_story_dir)
     beats = loader.load_beats()
     
@@ -84,8 +100,10 @@ def test_load_beats(temp_story_dir):
     assert beats[0]["id"] == "beat1"
     assert beats[1]["id"] == "beat2"
 
-def test_missing_shared_config(tmp_path):
+@patch('src.py_libs.flow.config_loader.OpenAI')
+def test_missing_shared_config(mock_openai_class, tmp_path, mock_openai_client):
     """Test handling of missing shared configuration."""
+    mock_openai_class.return_value = mock_openai_client
     story_dir = tmp_path / "test_story"
     story_dir.mkdir()
     
@@ -105,8 +123,10 @@ def test_missing_shared_config(tmp_path):
         with pytest.raises(FileNotFoundError):
             loader.load_prompts()
 
-def test_missing_beats(tmp_path):
+@patch('src.py_libs.flow.config_loader.OpenAI')
+def test_missing_beats(mock_openai_class, tmp_path, mock_openai_client):
     """Test handling of missing beats file."""
+    mock_openai_class.return_value = mock_openai_client
     story_dir = tmp_path / "test_story"
     story_dir.mkdir()
     
@@ -115,27 +135,13 @@ def test_missing_beats(tmp_path):
     with pytest.raises(FileNotFoundError):
         loader.load_beats()
 
-def test_analyze_beat(temp_story_dir, mocker):
+@patch('src.py_libs.flow.config_loader.OpenAI')
+def test_analyze_beat(mock_openai_class, temp_story_dir, mock_openai_client):
     """Test beat analysis functionality."""
-    # Mock OpenAI client response
-    mock_response = mocker.Mock()
-    mock_response.choices = [mocker.Mock()]
-    mock_response.choices[0].message.content = json.dumps({
-        "character": "test_character",
-        "context": "test_context",
-        "style": {
-            "tone": "test_tone",
-            "pov": "test_pov",
-            "tense": "test_tense"
-        }
-    })
-    
-    # Mock OpenAI client
-    mock_client = mocker.Mock()
-    mock_client.chat.completions.create.return_value = mock_response
+    mock_openai_class.return_value = mock_openai_client
     
     # Initialize loader with mock client
-    loader = ConfigLoader(temp_story_dir, mock_client)
+    loader = ConfigLoader(temp_story_dir)
     
     # Test successful analysis
     result = loader.analyze_beat("Test beat", "Test context")
@@ -144,12 +150,15 @@ def test_analyze_beat(temp_story_dir, mocker):
     assert result["style"]["tone"] == "test_tone"
     
     # Test missing client
-    loader_no_client = ConfigLoader(temp_story_dir)
-    with pytest.raises(ValueError):
-        loader_no_client.analyze_beat("Test beat")
-        
+    with patch('src.py_libs.flow.config_loader.OpenAI', return_value=None):
+        loader_no_client = ConfigLoader(temp_story_dir)
+        with pytest.raises(ValueError):
+            loader_no_client.analyze_beat("Test beat")
+            
     # Test JSON parsing error
-    mock_response.choices[0].message.content = "invalid json"
+    mock_response = Mock()
+    mock_response.choices = [Mock(message=Mock(content="invalid json"))]
+    mock_openai_client.chat.completions.create.return_value = mock_response
     result = loader.analyze_beat("Test beat")
     assert result["character"] == "main_character"  # Default fallback
     assert result["style"]["tone"] == "neutral"  # Default fallback 

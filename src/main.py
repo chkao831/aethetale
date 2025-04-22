@@ -44,6 +44,9 @@ def main():
                        help="Name of the story to process (default: the_clockwork_garden)")
     parser.add_argument("--language", type=str, choices=["auto", "en", "zh"], default="auto",
                        help="Language for generated content (auto/en/zh)")
+    parser.add_argument("--model", type=str, choices=["gpt-3.5-turbo", "gpt-4"], default="gpt-3.5-turbo",
+                       help="Model to use for generation (default: gpt-3.5-turbo)")
+    
     args = parser.parse_args()
 
     if args.create:
@@ -94,6 +97,8 @@ def main():
             chinese_chars = sum(1 for c in story_text if '\u4e00' <= c <= '\u9fff')
             args.language = "zh" if chinese_chars / len(story_text) > 0.5 else "en"
             print(f"Auto-detected language: {args.language}")
+
+        print(f"Using specified model: {args.model}")
 
         # Load shared configuration
         with open(shared_config_path / "prompt.yaml", 'r', encoding='utf-8') as f:
@@ -194,10 +199,10 @@ def main():
     try:
         # Initialize flow components
         print("\nInitializing flow components...")
-        config_loader = ConfigLoader(story_path, openai_client=openai_client)
+        config_loader = ConfigLoader(story_path, openai_client=openai_client, model=args.model)
         prompt_builder = PromptBuilder(story_path, language=args.language)
         retriever = ContextRetriever(story_path)
-        generator = StoryGenerator(story_path, openai_client)
+        generator = StoryGenerator(story_path, openai_client, language=args.language, model=args.model)
         stitcher = ChapterStitcher(story_path)
         print("✅ Flow components initialized")
 
@@ -209,13 +214,21 @@ def main():
         # Get story style and context
         story_elements = story_setup.analyzer.load_story_elements()
         story_style = story_elements['style']
-        story_context = story_text[-1000:]  # Use last 1000 chars as context
+        # Use larger context window for Chinese content
+        context_window = 3000 if args.language == "zh" else 1000
+        story_context = story_text[-context_window:]  # Use last N chars as context
         
-        # Build prompt for continuous narrative
+        # Get character context for each character in the story
+        character_contexts = {}
+        for character_name in story_elements['characters'].keys():
+            character_contexts[character_name] = retriever.get_character_context(character_name)
+        
+        # Build prompt for continuous narrative with character context
         prompt = prompt_builder.build_beat_prompt(
             beats="\n".join(f"- {beat}" for beat in beat_descriptions),
             context=story_context,
-            style=story_style
+            style=story_style,
+            character_contexts=character_contexts
         )
         print("✅ Prompt built")
 

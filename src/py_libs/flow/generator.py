@@ -4,7 +4,7 @@ from pathlib import Path
 import json
 
 class StoryGenerator:
-    def __init__(self, story_path: Path, openai_client: OpenAI | None = None, language: str = "en"):
+    def __init__(self, story_path: Path, openai_client: OpenAI | None = None, language: str = "en", model: str = "gpt-3.5-turbo"):
         """
         Initialize the story generator.
         
@@ -12,33 +12,43 @@ class StoryGenerator:
             story_path: Path to the story directory
             openai_client: OpenAI client instance (optional)
             language: Language to use for generation (default: "en")
+            model: Model to use for generation (default: "gpt-3.5-turbo")
         """
         self.story_path = story_path
         self.shared_config_path = Path("config/shared")
         self.client = openai_client if openai_client is not None else OpenAI()
         self.language = language
+        self.model = model
         self._load_config()
         
     def _load_config(self):
         """Load configuration from shared config directory."""
+        # Load model config
+        with open(self.shared_config_path / "model_config.json", 'r', encoding='utf-8') as f:
+            model_config = json.load(f)
+            self.model_settings = model_config["models"][self.model]
+
+        # Load general config
         with open(self.shared_config_path / "config.json", 'r', encoding='utf-8') as f:
             self.config = json.load(f)
-            # Ensure model is set to gpt-3.5-turbo
-            self.config["model"] = "gpt-3.5-turbo"
-            # Set a reasonable default for max_tokens if not specified
-            if "max_tokens" not in self.config:
-                self.config["max_tokens"] = 2000  # Default to 2000 tokens for full chapters
+            self.config["model"] = self.model
             
     def generate_text(self, prompt: str) -> str:
         """Generate text based on a prompt."""
+        # Set system message based on language
+        if self.language == "zh":
+            system_message = "你是一位中文创意写作助手。请用中文生成内容，保持中文写作风格和表达方式。"
+        else:
+            system_message = f"You are a creative writing assistant. Generate text in {self.language} language."
+
         response = self.client.chat.completions.create(
-            model=self.config.get("model", "gpt-3.5-turbo"),
+            model=self.model,
             messages=[
-                {"role": "system", "content": f"You are a creative writing assistant. Generate text in {self.language} language."},
+                {"role": "system", "content": system_message},
                 {"role": "user", "content": prompt}
             ],
-            temperature=self.config.get("temperature", 0.7),
-            max_tokens=self.config.get("max_tokens", 100)
+            temperature=self.model_settings["temperature"],
+            max_tokens=self.model_settings["max_tokens"]
         )
         return response.choices[0].message.content.strip()
             

@@ -2,6 +2,7 @@ from typing import Dict, Any
 import json
 from openai import OpenAI
 from pathlib import Path
+from ..flow.model_config import ModelConfig
 
 class StoryAnalyzer:
     def __init__(self, story_path: Path, client: OpenAI | None = None):
@@ -15,6 +16,7 @@ class StoryAnalyzer:
         self.story_path = story_path
         self.shared_prompt_path = Path("config/shared/prompt.yaml")
         self.client = client if client is not None else OpenAI()
+        self.model_config = ModelConfig()
         
     def extract_story_elements(self, text: str) -> Dict[str, Any]:
         """
@@ -41,45 +43,25 @@ class StoryAnalyzer:
         # Format the prompt
         formatted_prompt = analysis_prompt.format(text=text)
         
+        # Get model configuration
+        model_name = self.model_config.get_model_name()
+        temperature = self.model_config.get_temperature()
+        
         # Call the LLM
         response = self.client.chat.completions.create(
-            model="gpt-3.5-turbo",
+            model=model_name,
             messages=[
                 {"role": "system", "content": "You are a story analysis assistant. Always respond with valid JSON."},
                 {"role": "user", "content": formatted_prompt}
             ],
-            temperature=0.3,
+            temperature=temperature,
             response_format={"type": "json_object"}
         )
         
-        # Get the response content
-        content = response.choices[0].message.content
-        
-        # Try to parse the JSON response
         try:
-            # First try direct parsing
-            elements = json.loads(content)
-            return elements
-        except json.JSONDecodeError as e:
-            # If direct parsing fails, try to extract JSON from the response
-            try:
-                # Look for JSON content between ```json and ``` markers
-                import re
-                json_match = re.search(r'```json\s*(.*?)\s*```', content, re.DOTALL)
-                if json_match:
-                    elements = json.loads(json_match.group(1))
-                    return elements
-                else:
-                    # If no markers found, try to find the first valid JSON object
-                    json_match = re.search(r'\{.*\}', content, re.DOTALL)
-                    if json_match:
-                        elements = json.loads(json_match.group(0))
-                        return elements
-                    else:
-                        raise ValueError("No valid JSON found in response")
-            except (json.JSONDecodeError, ValueError) as e:
-                print(f"Raw LLM response:\n{content}")
-                raise ValueError(f"Failed to parse story elements from LLM response: {str(e)}")
+            return json.loads(response.choices[0].message.content)
+        except json.JSONDecodeError:
+            return {"error": "Failed to parse story analysis"}
             
     def save_story_elements(self, elements: Dict[str, Any]):
         """

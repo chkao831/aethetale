@@ -45,8 +45,20 @@ beat_expansion: |
   4. Uses the specified language throughout
   5. Focuses on showing rather than telling
   6. Incorporates sensory details to bring the scene to life
+  7. Matches the exact writing style, vocabulary choices, and sentence structures of the previous context
+  8. Maintains the same level of detail and descriptive richness of the previous context
+  9. Uses similar literary devices and rhetorical techniques as found in the previous context
+  10. Preserves the same pacing and rhythm of the narrative
   
   Do not treat the beats as separate sections or bullet points. Instead, weave them together into a single, cohesive narrative that feels like a natural continuation of the story.
+  
+  Pay special attention to:
+  - Matching the exact tone and atmosphere of the previous context
+  - Using similar descriptive language and imagery
+  - Maintaining consistent character voices and perspectives
+  - Following the same narrative pacing and structure
+  - Preserving the same level of detail in descriptions
+  - Using similar sentence structures and paragraph organization
 
 character_extraction: |
   Analyze the following story text and extract detailed character profiles.

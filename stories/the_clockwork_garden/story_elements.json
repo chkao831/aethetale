@@ -1,8 +1,8 @@
 {
   "style": {
-    "tone": "Whimsical and mysterious",
-    "pacing": "Slow and contemplative",
-    "narrative_style": "Descriptive and immersive"
+    "tone": "Mystical and awe-inspiring",
+    "pacing": "Slow and immersive",
+    "narrative_style": "Descriptive and atmospheric"
   },
   "characters": {
     "Lena": {
@@ -12,37 +12,43 @@
         "Determined",
         "Knowledgeable"
       ],
-      "arc": "From seeking proof to becoming a bridge between two worlds"
+      "arc": "Becoming the bridge between organic and mechanical worlds"
     },
     "Garden Keeper": {
       "role": "Guardian of the Clockwork Garden",
       "traits": [
         "Ancient",
-        "Mysterious",
-        "Wise"
+        "Wise",
+        "Mysterious"
       ],
       "arc": "Guiding Lena to help the garden evolve"
     }
   },
   "world": {
-    "setting": "Industrial district with a Clockwork Garden",
+    "setting": "Industrial district with a mystical Clockwork Garden",
     "rules": [
       "Mechanical plants with memories",
-      "Blurring boundaries between organic and mechanical"
+      "Blurring boundary between organic and mechanical"
     ],
     "atmosphere": "Magical and enchanting"
   },
   "themes": [
-    "Exploration of new possibilities",
-    "Harmony between nature and technology",
-    "Exploration and discovery",
-    "Discovery and transformation",
-    "Exploration of the unknown",
-    "The power of understanding and connection",
-    "Legacy and discovery",
-    "Exploration of boundaries and possibilities",
-    "Exploration of boundaries between organic and mechanical",
+    "Nature vs. Technology",
+    "Legacy and inheritance",
     "Evolution and transformation",
-    "Evolution and growth"
+    "evolution and growth",
+    "Discovery and transformation",
+    "Evolution and growth",
+    "Exploration of boundaries between organic and mechanical",
+    "Harmony between nature and technology",
+    "Exploration of new possibilities",
+    "Exploration and discovery",
+    "The power of understanding and connection",
+    "Evolution and change",
+    "Exploration of boundaries and possibilities",
+    "Legacy and discovery",
+    "Exploration of the unknown",
+    "harmony between nature and technology",
+    "discovery and transformation"
   ]
 }

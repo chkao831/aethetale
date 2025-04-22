@@ -4,7 +4,8 @@ from pathlib import Path
 import json
 from sentence_transformers import SentenceTransformer
 from src.py_libs.ingestion.version_manager import VersionManager
-from src.py_libs.models.character_profile import CharacterProfile
+from src.py_libs.models.character_profile import CharacterProfile, FamilyRelation
+from datetime import datetime
 
 class ContextRetriever:
     def __init__(self, story_path: Path):
@@ -43,10 +44,21 @@ class ContextRetriever:
         if profiles_path.exists():
             with open(profiles_path, 'r', encoding='utf-8') as f:
                 profiles_data = json.load(f)
-                self.character_profiles = {
-                    name: CharacterProfile.from_dict(data)
-                    for name, data in profiles_data.items()
-                }
+                
+                # Convert to CharacterProfile objects
+                self.character_profiles = {}
+                for name, data in profiles_data.items():
+                    try:
+                        # Convert family data to FamilyRelation objects if needed
+                        if "family" in data and isinstance(data["family"], list):
+                            data["family"] = [
+                                FamilyRelation(**rel) if isinstance(rel, dict) else rel
+                                for rel in data["family"]
+                            ]
+                        self.character_profiles[name] = CharacterProfile.from_dict(data)
+                    except Exception as e:
+                        print(f"Warning: Failed to load profile for {name}: {str(e)}")
+                        continue
         else:
             self.character_profiles = {}
             

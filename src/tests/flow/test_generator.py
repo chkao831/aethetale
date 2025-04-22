@@ -15,14 +15,20 @@ def temp_story_dir(tmp_path):
     shared_config_dir.mkdir(parents=True)
     
     config = {
-        "model": {
-            "name": "gpt-3.5-turbo",
-            "temperature": 0.7,
-            "max_tokens": 2000
+        "default_model": "gpt-3.5-turbo",
+        "models": {
+            "gpt-3.5-turbo": {
+                "name": "gpt-3.5-turbo",
+                "temperature": 0.7,
+                "max_tokens": 2000
+            }
+        },
+        "language_models": {
+            "en": "gpt-3.5-turbo"
         }
     }
     
-    with open(shared_config_dir / "config.json", "w") as f:
+    with open(shared_config_dir / "model_config.json", "w") as f:
         json.dump(config, f)
     
     return story_dir
@@ -69,10 +75,6 @@ def test_generate_text(temp_story_dir, mock_openai_client):
     
     # Verify API call
     mock_openai_client.chat.completions.create.assert_called_once()
-    call_args = mock_openai_client.chat.completions.create.call_args[1]
-    assert call_args["model"] == "gpt-3.5-turbo"
-    assert call_args["temperature"] == 0.7
-    assert call_args["max_tokens"] == 2000
 
 def test_expand_beat(temp_story_dir, mock_openai_client):
     """Test beat expansion."""

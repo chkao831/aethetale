@@ -3,162 +3,35 @@
     "name": "Lena",
     "aliases": [],
     "role": "Protagonist",
-    "occupation": "Botanist",
-    "personality_traits": [
-      "Determined",
-      "Innovative",
-      "Observant",
-      "Empathetic",
-      "Inquisitive",
-      "Curious",
-      "Compassionate"
-    ],
-    "goals": [
-      "Help the garden evolve",
-      "Understand the harmony between nature and machine",
-      "Help the garden grow and evolve",
-      "Prove the existence of the Clockwork Garden",
-      "Prove existence of Clockwork Garden"
-    ],
-    "fears": [
-      "Losing the connection between organic and mechanical",
-      "Being dismissed as a dreamer",
-      "Failure",
-      "Isolation",
-      "Being unable to help the garden evolve",
-      "Being unable to bridge the gap between organic and mechanical",
-      "Failure to understand the garden's purpose",
-      "Failure to uncover the garden's secrets",
-      "Failure to understand the garden's secrets",
-      "Harm coming to the Clockwork Garden"
-    ],
+    "occupation": "",
+    "personality_traits": [],
+    "goals": [],
+    "fears": [],
     "lovers": [],
-    "friends": [
-      "The Garden Keeper",
-      "Garden Keeper"
-    ],
+    "friends": [],
     "enemies": [],
-    "family": [
-      {
-        "relation_type": "grandmother",
-        "name": "Grandmother"
-      },
-      {
-        "relation_type": "Grandmother",
-        "name": "Grandmother"
-      }
-    ],
-    "key_events": [
-      "Realizing her role in the garden's evolution",
-      "Observing the garden's evolution",
-      "Discovering the Clockwork Garden",
-      "Observation of garden's evolution",
-      "Interaction with Garden Keeper",
-      "Discovery of Clockwork Garden",
-      "Helping the garden grow",
-      "Realization of garden's evolution",
-      "Interacting with the Garden Keeper"
-    ],
-    "style_embedding": null,
-    "profile_text": null,
-    "created_at": "2025-04-21T20:10:27.895175",
-    "updated_at": "2025-04-22T22:08:06.493087"
+    "family": [],
+    "key_events": [],
+    "profile_text": "A young botanist with a fascination for both living plants and mechanical wonders. Determined and curious, she spent years piecing together clues to uncover the Clockwork Garden. As she delved into the garden's secrets, she became the bridge between the mechanical and the organic, helping the garden evolve into something entirely new.",
+    "created_at": "2025-04-22T23:56:41.599512",
+    "updated_at": "2025-04-23T00:16:58.095907",
+    "style_embedding": null
   },
   "Garden Keeper": {
     "name": "Garden Keeper",
-    "aliases": [
-      "Keeper"
-    ],
-    "role": "Guardian",
-    "occupation": "Maintainer of the Clockwork Garden",
-    "personality_traits": [
-      "Wise",
-      "Mysterious",
-      "Protective",
-      "Ancient",
-      "Ancient wisdom"
-    ],
-    "goals": [
-      "Preserve the history of the city in the garden",
-      "Preserve city's history in the garden",
-      "Preserve the garden's history",
-      "Find someone to help the garden evolve",
-      "Evolve the garden's existence",
-      "Facilitate its evolution",
-      "Evolve the garden into a new form of life",
-      "Evolve the garden",
-      "Find a caretaker for the garden",
-      "Preserve the harmony between nature and machine"
-    ],
-    "fears": [
-      "Being left without a successor",
-      "Losing the balance between nature and machine",
-      "Being misunderstood by visitors",
-      "The garden's destruction",
-      "Destruction of the garden",
-      "The garden's stagnation or destruction",
-      "Decay of the garden",
-      "The garden not reaching its full potential",
-      "Being misunderstood",
-      "Loss of balance between nature and machine",
-      "The garden's secrets being lost",
-      "The garden's secrets being misused",
-      "The garden's stagnation"
-    ],
-    "lovers": [],
-    "friends": [
-      "Lena"
-    ],
-    "enemies": [],
-    "family": [],
-    "key_events": [
-      "Guiding Lena in understanding the garden's purpose",
-      "Observing the garden's evolution",
-      "Meeting Lena",
-      "Welcoming Lena to the garden",
-      "Observing the garden's transformation",
-      "Revealing the garden's purpose",
-      "Guiding Lena in understanding the garden",
-      "Revealing the garden to Lena",
-      "Witnessing the garden's evolution",
-      "Revealing the garden's purpose to Lena"
-    ],
-    "style_embedding": null,
-    "profile_text": null,
-    "created_at": "2025-04-21T20:10:27.895221",
-    "updated_at": "2025-04-22T22:08:06.493135"
-  },
-  "The Garden Keeper": {
-    "name": "The Garden Keeper",
+    "role": "Guide/Mentor",
+    "profile_text": "An ancient automaton who maintains the Clockwork Garden. Covered in moss and vines, it possesses a mixture of mechanical and organic qualities. The Keeper guides Lena in understanding the garden's language and plays a crucial role in the garden's evolution.",
+    "personality_traits": [],
     "aliases": [],
-    "role": "Guardian",
-    "occupation": "Maintainer of the Clockwork Garden",
-    "personality_traits": [
-      "Ancient",
-      "Wise",
-      "Mysterious",
-      "Protective"
-    ],
-    "goals": [
-      "Preserve the history of the city in the garden",
-      "Find someone to help the garden evolve"
-    ],
-    "fears": [
-      "The garden's destruction"
-    ],
+    "occupation": "",
+    "goals": [],
+    "fears": [],
     "lovers": [],
-    "friends": [
-      "Lena"
-    ],
+    "friends": [],
     "enemies": [],
     "family": [],
-    "key_events": [
-      "Welcoming Lena to the garden",
-      "Revealing the garden's purpose to Lena"
-    ],
-    "style_embedding": null,
-    "profile_text": null,
-    "created_at": "2025-04-22T21:56:50.948822",
-    "updated_at": "2025-04-22T21:56:50.948823"
+    "key_events": [],
+    "created_at": "2025-04-23T00:16:58.095763",
+    "updated_at": "2025-04-23T00:16:58.095770"
   }
 }

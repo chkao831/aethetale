@@ -16,6 +16,9 @@ python -m src.main --story Lucent
 
 # Run with specific language
 python -m src.main --story Lucent --language zh
+
+# Run with specific model
+python -m src.main --story Lucent --model gpt-4
 ```
 
 ## Running Tests
@@ -55,6 +58,13 @@ Once you've created your story, you can process it with these options:
    - "zh": Chinese
    ```bash
    python -m src.main --story your_story_name --language zh
+   ```
+
+3. `--model`: Choose the OpenAI model to use
+   - "gpt-3.5-turbo": Faster, more cost-effective (default)
+   - "gpt-4": More capable, better at complex narratives
+   ```bash
+   python -m src.main --story your_story_name --model gpt-4
    ```
 
 The system uses shared configurations from `configs/shared/` for consistent behavior across all stories.

@@ -6,38 +6,38 @@
   },
   "characters": {
     "男人": {
-      "role": "Mysterious traveler",
+      "role": "Main character",
       "traits": [
         "Military background",
-        "Confident",
-        "Enigmatic"
+        "Mysterious aura"
       ],
-      "arc": "Exploring the gateway to the underworld"
+      "arc": "Journey into the underworld"
     },
     "刻耳柏洛斯": {
       "role": "Guardian of the underworld",
       "traits": [
         "Three-headed",
-        "Menacing",
-        "Symbol of death"
+        "Symbol of death and destruction"
       ],
-      "arc": "Protecting the entrance to the realm of the dead"
+      "arc": "Protector of the realm of the dead"
     }
   },
   "world": {
-    "setting": "Near the Tainas Cape, mysterious gateway to the underworld",
+    "setting": "Near the Tainas Cape, mysterious and ancient",
     "rules": [
-      "Three-headed guardian symbolizes death and destruction",
-      "Ancient and immortal gateway"
+      "Existence of the underworld",
+      "Magical creatures like 刻耳柏洛斯"
     ],
     "atmosphere": "Eerie and foreboding"
   },
   "themes": [
-    "Power",
-    "Death",
     "Supernatural",
+    "Exploration of the unknown",
     "Power dynamics",
-    "Mystery",
-    "Exploration of the unknown"
+    "Power and sacrifice",
+    "Death and destiny",
+    "Death",
+    "Power",
+    "Mystery"
   ]
 }

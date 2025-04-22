@@ -54,7 +54,7 @@ def test_save_and_load_chapter(temp_story_dir):
     stitcher.save_chapter(chapter_text, chapter_number, metadata)
     
     # Verify files were created
-    assert (temp_story_dir / "chapters" / f"chapter_{chapter_number}.txt").exists()
+    assert (temp_story_dir / "chapters" / f"chapter_{chapter_number}.md").exists()
     assert (temp_story_dir / "chapters" / f"chapter_{chapter_number}_metadata.json").exists()
     
     # Load chapter
@@ -71,11 +71,11 @@ def test_list_chapters(temp_story_dir):
     chapters_dir.mkdir()
     
     # Create valid chapter files
-    (chapters_dir / "chapter_1.txt").touch()
-    (chapters_dir / "chapter_2.txt").touch()
+    (chapters_dir / "chapter_1.md").touch()
+    (chapters_dir / "chapter_2.md").touch()
     
     # Create some invalid files that should be ignored
-    (chapters_dir / "not_a_chapter.txt").touch()
+    (chapters_dir / "not_a_chapter.md").touch()
     (chapters_dir / "chapter_invalid.txt").touch()
     
     chapters = stitcher.list_chapters()

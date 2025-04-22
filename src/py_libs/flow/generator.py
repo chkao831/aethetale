@@ -23,8 +23,8 @@ class StoryGenerator:
         """Load configuration from shared config directory."""
         with open(self.shared_config_path / "config.json", 'r', encoding='utf-8') as f:
             self.config = json.load(f)
-            # Ensure model is set to gpt-4-turbo-preview
-            self.config["model"] = "gpt-4-turbo-preview"
+            # Ensure model is set to gpt-3.5-turbo
+            self.config["model"] = "gpt-3.5-turbo"
             # Set a reasonable default for max_tokens if not specified
             if "max_tokens" not in self.config:
                 self.config["max_tokens"] = 2000  # Default to 2000 tokens for full chapters
@@ -32,7 +32,7 @@ class StoryGenerator:
     def generate_text(self, prompt: str) -> str:
         """Generate text based on a prompt."""
         response = self.client.chat.completions.create(
-            model=self.config.get("model", "gpt-4-turbo-preview"),
+            model=self.config.get("model", "gpt-3.5-turbo"),
             messages=[
                 {"role": "system", "content": f"You are a creative writing assistant. Generate text in {self.language} language."},
                 {"role": "user", "content": prompt}

@@ -1,3 +1,11 @@
+# Aethetale
+
+![Aethetale Logo](assets/logo.png)
+
+Aethetale is a platform for narrating new chapters and staying true to your world. The logo symbolizes creativity and storytelling.
+
+---
+
 ## Quick start
 ```bash
 # Run with default story (the_clockwork_garden)

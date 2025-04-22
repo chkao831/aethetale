@@ -16,7 +16,7 @@ def temp_story_dir(tmp_path):
     
     # Create shared config.json
     config = {
-        "model": "gpt-4-turbo-preview",
+        "model": "gpt-3.5-turbo",
         "temperature": 0.7,
         "max_tokens": 1000,
         "supported_languages": ["en", "zh"]
@@ -58,7 +58,7 @@ def test_load_config(temp_story_dir):
     loader = ConfigLoader(temp_story_dir)
     config = loader.load_config()
     
-    assert config["model"] == "gpt-4-turbo-preview"
+    assert config["model"] == "gpt-3.5-turbo"
     assert config["temperature"] == 0.7
     assert config["max_tokens"] == 1000
     assert "en" in config["supported_languages"]

@@ -16,7 +16,7 @@ def temp_story_dir(tmp_path):
     
     config = {
         "model": {
-            "name": "gpt-4-turbo-preview",
+            "name": "gpt-3.5-turbo",
             "temperature": 0.7,
             "max_tokens": 2000
         }
@@ -70,7 +70,7 @@ def test_generate_text(temp_story_dir, mock_openai_client):
     # Verify API call
     mock_openai_client.chat.completions.create.assert_called_once()
     call_args = mock_openai_client.chat.completions.create.call_args[1]
-    assert call_args["model"] == "gpt-4-turbo-preview"
+    assert call_args["model"] == "gpt-3.5-turbo"
     assert call_args["temperature"] == 0.7
     assert call_args["max_tokens"] == 2000
 

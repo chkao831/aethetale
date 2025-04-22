@@ -70,7 +70,7 @@ class ChapterStitcher:
         chapters_dir.mkdir(exist_ok=True)
         
         # Save chapter text
-        chapter_file = chapters_dir / f"chapter_{chapter_number}.txt"
+        chapter_file = chapters_dir / f"chapter_{chapter_number}.md"
         with open(chapter_file, 'w', encoding='utf-8') as f:
             f.write(chapter_text)
             
@@ -92,7 +92,7 @@ class ChapterStitcher:
         chapters_dir = self.story_path / "chapters"
         
         # Load chapter text
-        chapter_file = chapters_dir / f"chapter_{chapter_number}.txt"
+        chapter_file = chapters_dir / f"chapter_{chapter_number}.md"
         with open(chapter_file, 'r', encoding='utf-8') as f:
             text = f.read()
             
@@ -118,7 +118,7 @@ class ChapterStitcher:
             return []
             
         chapters = []
-        for file in chapters_dir.glob("chapter_*.txt"):
+        for file in chapters_dir.glob("chapter_*.md"):
             try:
                 chapter_num = int(file.stem.split('_')[1])
                 chapters.append(chapter_num)

@@ -41,7 +41,7 @@ class ConfigLoader:
             config = json.load(f)
             # Ensure required settings are present
             config.update({
-                "model": "gpt-4-turbo-preview",
+                "model": "gpt-3.5-turbo",
                 "max_tokens": 1000,
                 "temperature": 0.7,
                 "supported_languages": ["en", "zh"]

@@ -16,55 +16,57 @@ class ModelConfig:
         with open(self.config_path, 'r', encoding='utf-8') as f:
             self.config = json.load(f)
             
-    def get_model_config(self, language: str = None) -> Dict[str, Any]:
+    def get_model_config(self) -> Dict[str, Any]:
         """
-        Get the model configuration for a specific language or the default model.
+        Get the model configuration for the default model.
         
-        Args:
-            language: Language code (e.g., 'zh', 'en') or None for default
-            
         Returns:
             Dictionary containing model configuration
         """
-        if language and language in self.config["language_models"]:
-            model_name = self.config["language_models"][language]
-        else:
-            model_name = self.config["default_model"]
-            
+        model_name = self.config["default_model"]
         return self.config["models"][model_name]
         
-    def get_model_name(self, language: str = None) -> str:
+    def get_model_name(self) -> str:
         """
-        Get the model name for a specific language or the default model.
+        Get the default model name.
         
-        Args:
-            language: Language code (e.g., 'zh', 'en') or None for default
-            
         Returns:
             Model name string
         """
-        return self.get_model_config(language)["name"]
+        return self.get_model_config()["name"]
         
-    def get_temperature(self, language: str = None) -> float:
+    def get_temperature(self) -> float:
         """
-        Get the temperature setting for a specific language or the default model.
+        Get the temperature setting for the default model.
         
-        Args:
-            language: Language code (e.g., 'zh', 'en') or None for default
-            
         Returns:
             Temperature value
         """
-        return self.get_model_config(language)["temperature"]
+        return self.get_model_config()["temperature"]
         
-    def get_max_tokens(self, language: str = None) -> int:
+    def get_max_tokens(self) -> int:
         """
-        Get the max tokens setting for a specific language or the default model.
+        Get the max tokens setting for the default model.
         
-        Args:
-            language: Language code (e.g., 'zh', 'en') or None for default
-            
         Returns:
             Max tokens value
         """
-        return self.get_model_config(language)["max_tokens"] 
+        return self.get_model_config()["max_tokens"]
+        
+    def get_chunk_size(self) -> int:
+        """
+        Get the chunk size setting.
+        
+        Returns:
+            Chunk size value
+        """
+        return self.config.get("chunk_size", 1000)
+        
+    def get_chunk_overlap(self) -> int:
+        """
+        Get the chunk overlap setting.
+        
+        Returns:
+            Chunk overlap value
+        """
+        return self.config.get("chunk_overlap", 200) 

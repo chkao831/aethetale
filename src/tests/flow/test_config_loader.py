@@ -32,16 +32,26 @@ def temp_story_dir(tmp_path):
     shared_config_path = tmp_path / "config" / "shared"
     shared_config_path.mkdir(parents=True)
     
-    # Create config.json
-    config = {
-        "model": "gpt-3.5-turbo",
-        "max_tokens": 1000,
-        "temperature": 0.7,
-        "supported_languages": ["en", "zh"]
+    # Create model_config.json
+    model_config = {
+        "default_model": "gpt-3.5-turbo",
+        "models": {
+            "gpt-3.5-turbo": {
+                "name": "gpt-3.5-turbo",
+                "temperature": 0.7,
+                "max_tokens": 2000
+            },
+            "gpt-4": {
+                "name": "gpt-4",
+                "temperature": 0.3,
+                "max_tokens": 3000
+            }
+        },
+        "chunk_size": 1000,
+        "chunk_overlap": 200
     }
-    
-    with open(shared_config_path / "config.json", "w") as f:
-        json.dump(config, f)
+    with open(shared_config_path / "model_config.json", "w", encoding="utf-8") as f:
+        json.dump(model_config, f)
     
     # Create beats.yaml
     beats = {
@@ -66,6 +76,10 @@ def test_load_config(mock_openai_class, temp_story_dir, mock_openai_client):
     assert "model" in config
     assert "max_tokens" in config
     assert "temperature" in config
+    assert "chunk_size" in config
+    assert "chunk_overlap" in config
+    assert config["chunk_size"] == 1000
+    assert config["chunk_overlap"] == 200
     assert "supported_languages" in config
 
 @patch('src.py_libs.flow.config_loader.OpenAI')
@@ -107,19 +121,42 @@ def test_missing_shared_config(mock_openai_class, tmp_path, mock_openai_client):
     story_dir = tmp_path / "test_story"
     story_dir.mkdir()
     
-    # Create shared config directory but no files
+    # Create shared config directory
     shared_config_dir = tmp_path / "config" / "shared"
     shared_config_dir.mkdir(parents=True)
+    
+    # Create model_config.json with actual configuration structure
+    model_config = {
+        "default_model": "gpt-3.5-turbo",
+        "models": {
+            "gpt-3.5-turbo": {
+                "name": "gpt-3.5-turbo",
+                "temperature": 0.7,
+                "max_tokens": 2000
+            },
+            "gpt-4": {
+                "name": "gpt-4",
+                "temperature": 0.3,
+                "max_tokens": 3000
+            }
+        },
+        "chunk_size": 1000,
+        "chunk_overlap": 200
+    }
+    with open(shared_config_dir / "model_config.json", "w", encoding="utf-8") as f:
+        json.dump(model_config, f)
     
     # Change working directory to tmp_path
     with pytest.MonkeyPatch().context() as mp:
         mp.chdir(tmp_path)
         loader = ConfigLoader(story_dir)
         
-        # Should raise FileNotFoundError when trying to load missing files
-        with pytest.raises(FileNotFoundError):
-            loader.load_config()
-            
+        # Test that config values come from model_config.json
+        config = loader.load_config()
+        assert config["chunk_size"] == 1000
+        assert config["chunk_overlap"] == 200
+        
+        # Should raise FileNotFoundError when trying to load missing prompt.yaml
         with pytest.raises(FileNotFoundError):
             loader.load_prompts()
 

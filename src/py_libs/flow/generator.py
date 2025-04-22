@@ -2,6 +2,7 @@ from typing import Dict, Any, Optional
 from openai import OpenAI
 from pathlib import Path
 import json
+from .model_config import ModelConfig
 
 class StoryGenerator:
     def __init__(self, story_path: Path, openai_client: OpenAI | None = None, language: str = "en", model: str = "gpt-3.5-turbo"):
@@ -19,20 +20,25 @@ class StoryGenerator:
         self.client = openai_client if openai_client is not None else OpenAI()
         self.language = language
         self.model = model
+        self.model_config = ModelConfig()
         self._load_config()
         
     def _load_config(self):
-        """Load configuration from shared config directory."""
-        # Load model config
-        with open(self.shared_config_path / "model_config.json", 'r', encoding='utf-8') as f:
-            model_config = json.load(f)
-            self.model_settings = model_config["models"][self.model]
-
-        # Load general config
-        with open(self.shared_config_path / "config.json", 'r', encoding='utf-8') as f:
-            self.config = json.load(f)
-            self.config["model"] = self.model
-            
+        """Load configuration from model config."""
+        # Get model settings from ModelConfig
+        model_settings = self.model_config.get_model_config()
+        self.model_settings = {
+            "name": self.model,
+            "temperature": model_settings["temperature"],
+            "max_tokens": model_settings["max_tokens"]
+        }
+        
+        # Get chunk settings from ModelConfig
+        self.config = {
+            "chunk_size": self.model_config.get_chunk_size(),
+            "chunk_overlap": self.model_config.get_chunk_overlap()
+        }
+        
     def generate_text(self, prompt: str) -> str:
         """Generate text based on a prompt."""
         # Set system message based on language

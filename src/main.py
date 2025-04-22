@@ -103,8 +103,6 @@ def main():
         # Load shared configuration
         with open(shared_config_path / "prompt.yaml", 'r', encoding='utf-8') as f:
             prompts = yaml.safe_load(f)
-        with open(shared_config_path / "config.json", 'r', encoding='utf-8') as f:
-            config = json.load(f)
         print("✅ Loaded shared configuration")
 
         # Process the story

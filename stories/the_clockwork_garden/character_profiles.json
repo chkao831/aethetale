@@ -3,8 +3,16 @@
     "name": "Lena",
     "aliases": [],
     "role": "Protagonist",
-    "occupation": "",
-    "personality_traits": [],
+    "occupation": "botanist",
+    "personality_traits": [
+      "Determined",
+      "Knowledgeable",
+      "determined",
+      "Curious",
+      "bridge between organic and mechanical",
+      "fascination for living plants and mechanical wonders",
+      "curious"
+    ],
     "goals": [],
     "fears": [],
     "lovers": [],
@@ -12,18 +20,24 @@
     "enemies": [],
     "family": [],
     "key_events": [],
-    "profile_text": "A young botanist with a fascination for both living plants and mechanical wonders. Determined and curious, she spent years piecing together clues to uncover the Clockwork Garden. As she delved into the garden's secrets, she became the bridge between the mechanical and the organic, helping the garden evolve into something entirely new.",
+    "profile_text": "A young botanist with a fascination for both living plants and mechanical wonders. Determined and curious, spent years piecing together clues to discover the Clockwork Garden. Becomes the bridge between the mechanical and the organic, helping the garden evolve into a new form of life.",
     "created_at": "2025-04-22T23:56:41.599512",
-    "updated_at": "2025-04-23T00:16:58.095907",
+    "updated_at": "2025-04-23T00:58:37.874602",
     "style_embedding": null
   },
   "Garden Keeper": {
     "name": "Garden Keeper",
-    "role": "Guide/Mentor",
-    "profile_text": "An ancient automaton who maintains the Clockwork Garden. Covered in moss and vines, it possesses a mixture of mechanical and organic qualities. The Keeper guides Lena in understanding the garden's language and plays a crucial role in the garden's evolution.",
-    "personality_traits": [],
     "aliases": [],
+    "role": "Guardian/Mentor",
     "occupation": "",
+    "personality_traits": [
+      "communicates in a mixture of mechanical clicks and rustling of leaves",
+      "guardian of the Clockwork Garden",
+      "Mysterious",
+      "wise",
+      "Wise",
+      "Ancient"
+    ],
     "goals": [],
     "fears": [],
     "lovers": [],
@@ -31,7 +45,9 @@
     "enemies": [],
     "family": [],
     "key_events": [],
+    "profile_text": "An ancient automaton who maintains the Clockwork Garden. Covered in moss and vines, with glowing eyes. Speaks with a mixture of mechanical clicks and rustling leaves. Guides Lena and entrusts her to help the garden evolve.",
     "created_at": "2025-04-23T00:16:58.095763",
-    "updated_at": "2025-04-23T00:16:58.095770"
+    "updated_at": "2025-04-23T00:58:37.874636",
+    "style_embedding": null
   }
 }

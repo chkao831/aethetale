@@ -5,12 +5,12 @@
     "role": "character",
     "occupation": "",
     "personality_traits": [
-      "determined",
       "neat appearance",
-      "mysterious",
-      "precise",
+      "military background",
       "disciplined",
-      "military background"
+      "determined",
+      "mysterious",
+      "precise"
     ],
     "goals": [],
     "fears": [],
@@ -19,9 +19,9 @@
     "enemies": [],
     "family": [],
     "key_events": [],
-    "profile_text": "The man with short brown hair, standard facial features, and a military aura. He wears a slim-fit dark green shirt and moves with precise and disciplined steps. He has a mysterious and ancient vibe.",
+    "profile_text": "男人有一头利落的深棕色短发，五官因为过于标准端正显得有些刻板。举手之间，一身墨绿色修身衬衫勾勒出削瘦精悍的肩背线条，足下跨出的每一步都是严丝合缝的等距，身着便装，却掩不住其常年参军的独特气质。男人望向远方，展现着决断和坚毅。他与刻耳柏洛斯有着复杂的互动关系，展现出他对冥界的熟悉和勇气。",
     "created_at": "2025-04-22T23:53:34.408937",
-    "updated_at": "2025-04-23T00:17:40.213016",
+    "updated_at": "2025-04-23T00:47:19.299823",
     "style_embedding": null
   },
   "刻耳柏洛斯": {
@@ -30,13 +30,13 @@
     "role": "character",
     "occupation": "",
     "personality_traits": [
-      "terrifying presence",
-      "guardian of the underworld",
-      "symbol of death",
       "lethal",
       "deadly venom",
+      "terrifying presence",
+      "symbol of death",
       "terrifying",
-      "three-headed"
+      "three-headed",
+      "guardian of the underworld"
     ],
     "goals": [],
     "fears": [],
@@ -45,9 +45,9 @@
     "enemies": [],
     "family": [],
     "key_events": [],
-    "profile_text": "A three-headed creature named Cerberus, symbolizing death and destruction. Each head has greenish-blue flames and emits a terrifying heat. Its sharp teeth contain lethal venom, and its howls are like horns from the depths of hell.",
+    "profile_text": "刻耳柏洛斯是一只三头犬，每个头颅顶着一团青绿色的幽火。牠具有炽热气息和致命的毒液，象征着死亡和毁灭，是冥界的看守者。尽管凶狠，但在男人出现时展现出顺从和安静的一面，显示出对男人的尊敬和服从。",
     "created_at": "2025-04-22T23:53:34.409003",
-    "updated_at": "2025-04-23T00:17:40.213187",
+    "updated_at": "2025-04-23T00:47:19.299874",
     "style_embedding": null
   }
 }

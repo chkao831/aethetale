@@ -3,6 +3,7 @@ import json
 import yaml
 from typing import Dict, Any, List
 from openai import OpenAI
+from .model_config import ModelConfig
 
 class ConfigLoader:
     def __init__(self, story_path: Path, openai_client: OpenAI | None = None, model: str = "gpt-3.5-turbo"):
@@ -16,11 +17,11 @@ class ConfigLoader:
         """
         self.story_path = story_path
         self.shared_config_path = Path("config/shared")
-        self.config_path = self.shared_config_path / "config.json"
         self.prompt_path = self.shared_config_path / "prompt.yaml"
         self.beats_path = story_path / "beats.yaml"  # Only beats are story-specific
         self.client = openai_client if openai_client is not None else OpenAI()
         self.model = model
+        self.model_config = ModelConfig()
         
         # Ensure shared config directory exists
         if not self.shared_config_path.exists():
@@ -32,23 +33,20 @@ class ConfigLoader:
         
         Returns:
             Dictionary containing the story configuration
-        
-        Raises:
-            FileNotFoundError: If the config file doesn't exist
         """
-        if not self.config_path.exists():
-            raise FileNotFoundError(f"Shared config file not found at {self.config_path}")
-            
-        with open(self.config_path, 'r', encoding='utf-8') as f:
-            config = json.load(f)
-            # Ensure required settings are present
-            config.update({
-                "model": self.model,
-                "max_tokens": 1000,
-                "temperature": 0.7,
-                "supported_languages": ["en", "zh"]
-            })
-            return config
+        # Get model settings and chunk settings from ModelConfig
+        model_settings = self.model_config.get_model_config()
+        
+        # Combine all settings
+        config = {
+            "model": self.model,
+            "max_tokens": model_settings["max_tokens"],
+            "temperature": model_settings["temperature"],
+            "chunk_size": self.model_config.get_chunk_size(),
+            "chunk_overlap": self.model_config.get_chunk_overlap(),
+            "supported_languages": ["en", "zh"]
+        }
+        return config
             
     def load_prompts(self) -> Dict[str, Any]:
         """

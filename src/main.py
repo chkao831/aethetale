@@ -174,7 +174,7 @@ def main():
     
     try:
         # Initialize character manager
-        character_manager = CharacterManager(story_path, openai_client)
+        character_manager = CharacterManager(story_path, openai_client, model=args.model)
         print("✅ CharacterManager initialized")
         
         # Extract and update character profiles

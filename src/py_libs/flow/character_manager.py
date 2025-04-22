@@ -9,18 +9,20 @@ from pydantic import ValidationError
 from .model_config import ModelConfig
 
 class CharacterManager:
-    def __init__(self, story_path: Path, openai_client: OpenAI | None = None):
+    def __init__(self, story_path: Path, openai_client: OpenAI | None = None, model: str = "gpt-3.5-turbo"):
         """
         Initialize the character manager.
         
         Args:
             story_path: Path to the story directory
             openai_client: OpenAI client instance to use, if None a new one will be created
+            model: Model to use for generation (default: "gpt-3.5-turbo")
         """
         self.story_path = story_path
         self.client = openai_client if openai_client is not None else OpenAI()
         self.profiles_path = story_path / "character_profiles.json"
         self.model_config = ModelConfig()
+        self.model = model
         
         # Load prompts from shared config
         shared_config_path = Path("config/shared")
@@ -147,7 +149,7 @@ class CharacterManager:
         
         # Call the LLM
         response = self.client.chat.completions.create(
-            model="gpt-3.5-turbo",
+            model=self.model,
             messages=[
                 {"role": "system", "content": "You are a character analysis assistant. Always respond with valid JSON. For family relationships, always include both name and relation_type fields."},
                 {"role": "user", "content": formatted_prompt}

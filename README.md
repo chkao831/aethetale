@@ -24,6 +24,7 @@ python -m src.main --story Lucent --model gpt-4
 ## Running Tests
 To run the test suite:
 ```bash
+# tests are currently taken off
 python -m pytest src/tests -v
 ```
 
@@ -64,7 +65,7 @@ Once you've created your story, you can process it with these options:
    - "gpt-3.5-turbo": Faster, more cost-effective (default)
    - "gpt-4": More capable, better at complex narratives
    ```bash
-   python -m src.main --story your_story_name --model gpt-4
+      python -m src.main --story your_story_name --model gpt-4
    ```
 
 The system uses shared configurations from `configs/shared/` for consistent behavior across all stories.
